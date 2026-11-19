@@ -7,9 +7,11 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenLocal()
     mavenCentral()
+    maven("https://repo.helpch.at/releases/")
     maven("https://repo.papermc.io/repository/maven-public/")
 }
 dependencies {
+    compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
     testImplementation(kotlin("test-junit5"))
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

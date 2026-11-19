@@ -24,6 +24,7 @@
 Define a layout with characters, attach items, and handle clicks in Kotlin. Use a single surface for a simple window or keep a help hub and its categories together in one multi-page class.
 
 - **Readable layouts** — nine characters per row; repeated symbols fill multiple slots.
+- **Optional PlaceholderAPI** — viewer-specific values in titles, item names, and lore, resolved on every open.
 - **MiniMessage throughout** — titles, names, and lore accept tags, hex colors, and gradients.
 - **Named pages** — `page("economy")` and `openPage("economy")`, with independent page caches.
 - **Explicit lifecycle** — `onOpen` and `onClose` for every successfully opened session.
@@ -40,7 +41,7 @@ AdrenalinGUI is installed as a separate server plugin. This public build uses Pa
 | Server | Paper 1.21.11 or an API-compatible fork; UniverseSpigot is the development target |
 | Kotlin compiler | Project uses 2.5.0-Beta2; use this version when building the examples or a compatible compiler |
 | Build tool | Gradle Wrapper included, 9.6.0 |
-| Extra server plugins | None required |
+| Extra server plugins | None required; PlaceholderAPI and its relevant expansions are optional |
 | Folia | Not supported by the current main-thread scheduler |
 
 The build and unit tests are checked locally. An automated server integration test and a multiplayer load benchmark are not included; compatibility beyond the target version is not claimed.
@@ -167,6 +168,22 @@ class GuideGUI(plugin: JavaPlugin) : MultiGUISurface(1, plugin) {
 
 The full [HelpGUI example](src/test/kotlin/dev/aethereal/agui/example/HelpGUI.kt) contains a hub plus economy, mechanics, and server-information pages.
 
+## PlaceholderAPI
+
+Install PlaceholderAPI and the expansions your placeholders need. Without it, menus still open and placeholder tokens remain unchanged. Missing expansions also leave their unknown tokens unchanged.
+
+```kotlin
+title("<gold>Profile: %player_name%")
+name("<white>%player_name%")
+loreLine("<gray>Balance: <yellow>%vault_eco_balance%")
+```
+
+These calls belong in the title or item blocks shown above. The complete [PlayerProfileGUI](src/test/kotlin/dev/aethereal/agui/example/PlayerProfileGUI.kt) example compiles with the project.
+
+Resolution runs on the main thread for the player opening the menu, before MiniMessage parsing. Placeholder values containing MiniMessage tags are formatted too; legacy color codes are not converted by this text pipeline. Player values are never stored in the shared menu cache. Identical source text is resolved only once within a single opening, and plain static text keeps its cached component.
+
+Values refresh when the menu or page opens again. An already open inventory does not update automatically. See the [PlaceholderAPI usage documentation](https://wiki.placeholderapi.com/developers/using-placeholderapi/) for expansion requirements.
+
 ## Register once, open by name
 
 ```kotlin
@@ -206,12 +223,12 @@ A page transition invokes the old page's close hook and the new page's open hook
 | Operation | Behavior |
 | --- | --- |
 | First open | Build the layout, text, and item prototypes |
-| Repeated open | Clone cached prototypes into an independent inventory |
+| Repeated open | Clone cached prototypes; resolve placeholder-bearing text for this viewer |
 | `menu.invalidateCache()` | Rebuild on the next open; existing sessions keep their snapshot |
 | `multi.invalidateCache("economy")` | Rebuild that page on its next open |
 | Owner plugin disabled | Close its sessions, remove registrations, and clear tracked caches |
 
-Reuse menu instances. Creating a new menu object for every click creates a new cache too. Cached layouts are shared between viewers: do not capture a specific player's data in a shared cached layout.
+Reuse menu instances. Creating a new menu object for every click creates a new cache too. Cached layouts are shared between viewers: do not capture a specific player's data in a shared cached layout. Placeholder text is resolved separately for each viewer on every open.
 
 Click handlers expose `player`, `slot`, `click`, `isLeftClick`, `isRightClick`, and `isShiftClick`; multi-page clicks also expose `page`. A click action runs on the next main-thread tick, allowing inventory transitions. Additional clicks before it runs are coalesced; closing the inventory first discards the action.
 
@@ -230,7 +247,7 @@ These tools have different primary workflows. AdrenalinGUI puts a small typed DS
 | Multi-section guide | Named pages within one class | Menu navigation actions | Menu navigation actions |
 | Text colors | MiniMessage | MiniMessage and legacy formats | MiniMessage and legacy formats |
 | Ready-made animations / updates | Not implemented | Documented | Documented |
-| Built-in placeholder integration | Not implemented | PlaceholderAPI | PlaceholderAPI |
+| Built-in placeholder integration | Optional PlaceholderAPI | PlaceholderAPI | PlaceholderAPI |
 | Editing menus without recompiling your plugin | Not implemented | Reloadable configs | Reloadable configs |
 | Built-in economy/rules/action catalogue | Write your own Kotlin handlers | Configured actions and conditions | Configured rules and actions |
 
@@ -313,9 +330,9 @@ surface/
 
 ## Current scope
 
-Static Java inventory menus, named category pages, MiniMessage, click callbacks, lifecycle hooks, and explicit cache invalidation are implemented.
+Static Java inventory menus, named category pages, MiniMessage, optional PlaceholderAPI text, click callbacks, lifecycle hooks, and explicit cache invalidation are implemented.
 
-Automatic list pagination, animated items, periodic updates, placeholder/economy hooks, config loaders, native Bedrock forms, and automatic resource-pack/client detection are not implemented. The `MenuVariant` enum reserves `JAVA_RP`, `JAVA_NRP`, `BEDROCK_RP`, and `BEDROCK_NRP`; these values do not enable those client features.
+Automatic list pagination, animated items, periodic updates, economy hooks, config loaders, native Bedrock forms, and automatic resource-pack/client detection are not implemented. The `MenuVariant` enum reserves `JAVA_RP`, `JAVA_NRP`, `BEDROCK_RP`, and `BEDROCK_NRP`; these values do not enable those client features.
 
 Run `./gradlew test` for cache, pattern, page-registry, and lifecycle unit tests. Examples are compiled too; live server behavior still needs in-server verification.
 

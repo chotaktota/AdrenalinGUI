@@ -1,14 +1,13 @@
 package dev.aethereal.agui.surface.pattern
 
 import dev.aethereal.agui.surface.icon.Icon
-import net.kyori.adventure.text.minimessage.MiniMessage
 import dev.aethereal.agui.menu.MenuEngine
-import net.kyori.adventure.text.Component
+import dev.aethereal.agui.menu.text.MenuText
 
 class Pattern internal constructor(layout: String, rows: Int) {
     private val positions: Map<Char, List<Int>>
     internal val size = rows * 9
-    internal var caption: Component = Component.empty()
+    internal var caption = MenuText("")
     internal val icons = linkedMapOf<Int, Icon>()
     init {
         val lines = layout.trimIndent().lines()
@@ -21,7 +20,7 @@ class Pattern internal constructor(layout: String, rows: Int) {
     fun pos(symbol: Char): List<Int> = requireNotNull(positions[symbol]) { "Символ отсутствует в шаблоне: $symbol" }
     fun title(value: String) {
         MenuEngine.requireSync()
-        caption = miniMessage.deserialize(value)
+        caption = MenuText(value)
     }
     fun title(value: () -> String) = title(value())
     fun iconAt(slots: Iterable<Int>, configure: Icon.() -> Unit) {
@@ -32,7 +31,4 @@ class Pattern internal constructor(layout: String, rows: Int) {
         targets.forEach { icons[it] = icon }
     }
     fun iconAt(slot: Int, configure: Icon.() -> Unit) = iconAt(listOf(slot), configure)
-    private companion object {
-        val miniMessage = MiniMessage.miniMessage()
-    }
 }

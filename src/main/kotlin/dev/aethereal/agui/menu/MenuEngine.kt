@@ -3,12 +3,14 @@ package dev.aethereal.agui.menu
 import dev.aethereal.agui.AdrenalinGUI
 import dev.aethereal.agui.menu.cache.CachedMenu
 import dev.aethereal.agui.menu.session.MenuSession
+import dev.aethereal.agui.menu.text.TextRenderer
 import dev.aethereal.agui.surface.GUISurface
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 
 class MenuEngine internal constructor(val plugin: AdrenalinGUI) : AutoCloseable {
     val menus = MenuRegistry()
+    internal val text = TextRenderer(plugin)
     private val sessions = linkedSetOf<MenuSession>()
     private var closed = false
 

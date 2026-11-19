@@ -20,13 +20,14 @@ internal class MenuSession(
     private val page: String? = null,
     private val onNavigate: ((String) -> Unit)? = null
 ) : InventoryHolder {
-    private val contents = owner.server.createInventory(this, template.size, template.caption)
+    private val text = engine.text.forPlayer(player)
+    private val contents = owner.server.createInventory(this, template.size, template.title(text))
     private var active = false
     private var queued = false
     private val lifecycle = SessionLifecycle(
         { notify("onOpen", onOpen) }, { notify("onClose", onClose) }
     )
-    init { template.populate(contents) }
+    init { template.populate(contents, text) }
     override fun getInventory(): Inventory = contents
     fun open() {
         engine.started(this)
