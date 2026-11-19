@@ -1,0 +1,5 @@
+name: AdrenalinGUI
+version: '${version}'
+main: dev.aethereal.agui.AdrenalinGUI
+api-version: '1.21.11'
+authors: [aethereal]
