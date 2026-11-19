@@ -180,7 +180,7 @@ loreLine("<gray>Balance: <yellow>%vault_eco_balance%")
 
 These calls belong in the title or item blocks shown above. The complete [PlayerProfileGUI](src/test/kotlin/dev/aethereal/agui/example/PlayerProfileGUI.kt) example compiles with the project.
 
-Resolution runs on the main thread for the player opening the menu, before MiniMessage parsing. Placeholder values containing MiniMessage tags are formatted too; legacy color codes are not converted by this text pipeline. Player values are never stored in the shared menu cache. Identical source text is resolved only once within a single opening, and plain static text keeps its cached component.
+Resolution runs on the main thread for the player opening the menu, before MiniMessage parsing. Placeholder values containing MiniMessage tags are formatted too; legacy color codes are also supported, including values returned by expansions. Player values are never stored in the shared menu cache. Identical source text is resolved only once within a single opening, and plain static text keeps its cached component.
 
 Values refresh when the menu or page opens again. An already open inventory does not update automatically. See the [PlaceholderAPI usage documentation](https://wiki.placeholderapi.com/developers/using-placeholderapi/) for expansion requirements.
 
@@ -245,7 +245,7 @@ These tools have different primary workflows. AdrenalinGUI puts a small typed DS
 | Primary menu definition | Kotlin classes and callbacks | YAML files | HOCON files |
 | Logic for your own plugin services | Direct Kotlin calls | Config actions; extension API for custom logic | Config actions; extension API for custom logic |
 | Multi-section guide | Named pages within one class | Menu navigation actions | Menu navigation actions |
-| Text colors | MiniMessage | MiniMessage and legacy formats | MiniMessage and legacy formats |
+| Text colors | MiniMessage and legacy formats | MiniMessage and legacy formats | MiniMessage and legacy formats |
 | Ready-made animations / updates | Not implemented | Documented | Documented |
 | Built-in placeholder integration | Optional PlaceholderAPI | PlaceholderAPI | PlaceholderAPI |
 | Editing menus without recompiling your plugin | Not implemented | Reloadable configs | Reloadable configs |
@@ -341,3 +341,13 @@ Run `./gradlew test` for cache, pattern, page-registry, and lifecycle unit tests
 Open an [issue](https://github.com/chotaktota/AdrenalinGUI/issues) with your Java/server version, a minimal menu class, and a reproducible description.
 
 [Русская документация →](README.ru.md)
+
+## MiniMessage and legacy together
+
+Titles, names, lore and placeholder results accept MiniMessage mixed with legacy colors and decorations. Supported forms: `&a`, `§a`, `&l`, `&r`, `&#A1B2C3`, `&x&A&1&B&2&C&3` and their section-sign equivalents. Legacy color codes reset preceding decorations, matching legacy behavior. MM tag attributes, such as click URLs, are left intact.
+
+```kotlin
+title("&6Server <bold>guide</bold>")
+name("&#55FFAA%player_name%")
+loreLine("§7Balance: &e%vault_eco_balance%")
+```
