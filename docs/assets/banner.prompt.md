@@ -2,7 +2,7 @@
 
 Tool: built-in image_gen.imagegen.
 Asset: banner.png.
-Purpose: conceptual GitHub README cover, not a screenshot.
+transparent_background: false.
 
 Prompt:
-Create a polished wide GitHub README banner for a Minecraft inventory menu Kotlin framework. Exact title "AdrenalinGUI", subtitle "Minecraft menus. Written in Kotlin." Dark graphite-blue studio background; floating voxel inventory with an emerald eye, gold ingot, redstone crystal and grass block; cyan and emerald lighting; small purple code brackets; generous negative space and crisp editorial typography. Title on the left, inventory on the right. No feature claims, watermarks or additional logos.
+Use case: ads-marketing. Asset type: wide GitHub README cover illustration for an open-source Minecraft inventory menu Kotlin framework. Primary request: Create a polished, beautiful developer project banner with exact large title "AdrenalinGUI" and small subtitle "Minecraft menus. Written in Kotlin." Scene: dark graphite-blue studio background, floating voxel inventory grid with a glowing emerald eye, a gold ingot, a redstone crystal and a grass block, finely detailed pixel/voxel game aesthetic with tasteful cyan and emerald lighting, small purple code-like brackets as subtle abstract decoration. Composition: wide landscape 3:1-ish banner, title dominant in left half, inventory illustration in right half, generous breathing space, crisp professional editorial typography, no extraneous logos or additional words. This is a conceptual illustration, not a real in-game screenshot. Avoid clutter, fake feature claims, watermarks. Keep text spelled exactly. Save the output image as a local file if supported.
