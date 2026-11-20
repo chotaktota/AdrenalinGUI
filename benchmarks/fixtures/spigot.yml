@@ -1,0 +1,1 @@
+commands:\n  spam-exclusions:\n  - /benchopen\n  - /benchack\n  enable-spam-exclusions: true\n  log: false\n

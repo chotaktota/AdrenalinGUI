@@ -1,0 +1,10 @@
+name: MenuBenchmark
+version: '1.0'
+main: dev.aethereal.benchmark.MenuBenchmark
+api-version: '1.21.11'
+depend: [AdrenalinGUI, BMenu, AbstractMenus, PlaceholderAPI]
+commands:
+  benchopen: {}
+  benchack: {}
+  benchphase: {}
+  benchdump: {}

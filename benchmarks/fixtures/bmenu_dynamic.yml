@@ -1,0 +1,599 @@
+id: bench:dynamic
+size: 54
+title: "&6%bench_name%"
+click_cooldown: 0
+items:
+  item_0:
+    slot: 0
+    material: paper
+    name: "&a%bench_name% 0"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_1:
+    slot: 1
+    material: paper
+    name: "&a%bench_name% 1"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_2:
+    slot: 2
+    material: paper
+    name: "&a%bench_name% 2"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_3:
+    slot: 3
+    material: paper
+    name: "&a%bench_name% 3"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_4:
+    slot: 4
+    material: paper
+    name: "&a%bench_name% 4"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_5:
+    slot: 5
+    material: paper
+    name: "&a%bench_name% 5"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_6:
+    slot: 6
+    material: paper
+    name: "&a%bench_name% 6"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_7:
+    slot: 7
+    material: paper
+    name: "&a%bench_name% 7"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_8:
+    slot: 8
+    material: paper
+    name: "&a%bench_name% 8"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_9:
+    slot: 9
+    material: paper
+    name: "&a%bench_name% 9"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_10:
+    slot: 10
+    material: paper
+    name: "&a%bench_name% 10"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_11:
+    slot: 11
+    material: paper
+    name: "&a%bench_name% 11"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_12:
+    slot: 12
+    material: paper
+    name: "&a%bench_name% 12"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_13:
+    slot: 13
+    material: paper
+    name: "&a%bench_name% 13"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_14:
+    slot: 14
+    material: paper
+    name: "&a%bench_name% 14"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_15:
+    slot: 15
+    material: paper
+    name: "&a%bench_name% 15"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_16:
+    slot: 16
+    material: paper
+    name: "&a%bench_name% 16"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_17:
+    slot: 17
+    material: paper
+    name: "&a%bench_name% 17"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_18:
+    slot: 18
+    material: paper
+    name: "&a%bench_name% 18"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_19:
+    slot: 19
+    material: paper
+    name: "&a%bench_name% 19"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_20:
+    slot: 20
+    material: paper
+    name: "&a%bench_name% 20"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_21:
+    slot: 21
+    material: paper
+    name: "&a%bench_name% 21"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_22:
+    slot: 22
+    material: paper
+    name: "&a%bench_name% 22"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_23:
+    slot: 23
+    material: paper
+    name: "&a%bench_name% 23"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_24:
+    slot: 24
+    material: paper
+    name: "&a%bench_name% 24"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_25:
+    slot: 25
+    material: paper
+    name: "&a%bench_name% 25"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_26:
+    slot: 26
+    material: paper
+    name: "&a%bench_name% 26"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_27:
+    slot: 27
+    material: paper
+    name: "&a%bench_name% 27"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_28:
+    slot: 28
+    material: paper
+    name: "&a%bench_name% 28"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_29:
+    slot: 29
+    material: paper
+    name: "&a%bench_name% 29"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_30:
+    slot: 30
+    material: paper
+    name: "&a%bench_name% 30"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_31:
+    slot: 31
+    material: paper
+    name: "&a%bench_name% 31"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_32:
+    slot: 32
+    material: paper
+    name: "&a%bench_name% 32"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_33:
+    slot: 33
+    material: paper
+    name: "&a%bench_name% 33"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_34:
+    slot: 34
+    material: paper
+    name: "&a%bench_name% 34"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_35:
+    slot: 35
+    material: paper
+    name: "&a%bench_name% 35"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_36:
+    slot: 36
+    material: paper
+    name: "&a%bench_name% 36"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_37:
+    slot: 37
+    material: paper
+    name: "&a%bench_name% 37"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_38:
+    slot: 38
+    material: paper
+    name: "&a%bench_name% 38"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_39:
+    slot: 39
+    material: paper
+    name: "&a%bench_name% 39"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_40:
+    slot: 40
+    material: paper
+    name: "&a%bench_name% 40"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_41:
+    slot: 41
+    material: paper
+    name: "&a%bench_name% 41"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_42:
+    slot: 42
+    material: paper
+    name: "&a%bench_name% 42"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_43:
+    slot: 43
+    material: paper
+    name: "&a%bench_name% 43"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_44:
+    slot: 44
+    material: paper
+    name: "&a%bench_name% 44"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_45:
+    slot: 45
+    material: paper
+    name: "&a%bench_name% 45"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_46:
+    slot: 46
+    material: paper
+    name: "&a%bench_name% 46"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_47:
+    slot: 47
+    material: paper
+    name: "&a%bench_name% 47"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_48:
+    slot: 48
+    material: paper
+    name: "&a%bench_name% 48"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_49:
+    slot: 49
+    material: paper
+    name: "&a%bench_name% 49"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_50:
+    slot: 50
+    material: paper
+    name: "&a%bench_name% 50"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_51:
+    slot: 51
+    material: paper
+    name: "&a%bench_name% 51"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_52:
+    slot: 52
+    material: paper
+    name: "&a%bench_name% 52"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'
+  item_53:
+    slot: 53
+    material: paper
+    name: "&a%bench_name% 53"
+    lore:
+      - "&7Line one"
+      - "&7Line two"
+      - "&7Line three"
+      - "&e%bench_value%"
+    on_click:
+      - '[player] benchack'

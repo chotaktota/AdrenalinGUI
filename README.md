@@ -1,23 +1,10 @@
-<div align="center">
+# AdrenalinGUI
 
-<img src="docs/assets/banner.png" alt="AdrenalinGUI — Minecraft menus written in Kotlin" width="100%">
+Kotlin API for inventory menus in Minecraft plugins
 
-<p><strong>A Kotlin DSL for inventory menus inside your Minecraft plugins.</strong></p>
+[English](README.md) · [Русский](README.ru.md)
 
-<p>
-<img alt="Minecraft 1.21.11" src="https://img.shields.io/badge/Minecraft-1.21.11-55AA77?style=flat-square">
-<img alt="Java 21" src="https://img.shields.io/badge/Java-21-ED8B00?style=flat-square">
-<img alt="Kotlin 2.5.0 Beta2" src="https://img.shields.io/badge/Kotlin-2.5.0--Beta2-7F52FF?style=flat-square">
-<img alt="Status: early development" src="https://img.shields.io/badge/status-early_development-55AAFF?style=flat-square">
-</p>
-
-**English** · [Русский](README.ru.md)
-
-[Quick start](#quick-start) · [Pages](#one-menu-several-pages) · [Comparison](#bmenu--abstractmenus) · [Examples](#examples) · [Requirements](#requirements)
-
-</div>
-
-> The cover is an AI-generated concept illustration, not an in-game screenshot. The project is in early development; the API may change.
+![HelpGUI pattern and its inventory slots](docs/assets/help-layout.svg)
 
 ## Write a menu where your plugin logic lives
 
@@ -44,7 +31,7 @@ AdrenalinGUI is installed as a separate server plugin. This public build uses Pa
 | Extra server plugins | None required; PlaceholderAPI and its relevant expansions are optional |
 | Folia | Not supported by the current main-thread scheduler |
 
-The build and unit tests are checked locally. An automated server integration test and a multiplayer load benchmark are not included; compatibility beyond the target version is not claimed.
+The build, unit tests and local bot benchmark cover the published scenarios below. These measurements are not a server-capacity test; compatibility beyond the target version is not claimed.
 
 ## Build and install
 
@@ -107,7 +94,7 @@ class QuickStartGUI(plugin: JavaPlugin) : SingleGUISurface(3, plugin) {
             ....X....
             .........
         """.trimIndent())) {
-            title("<gradient:#55FFAA:#55AAFF>Welcome</gradient>")
+            title("<red>Welcome")
             iconAt(pos('X')) {
                 type(Material.ENDER_EYE)
                 name("<white>Explore the server")
@@ -214,8 +201,6 @@ These example classes compile during tests; they are not bundled into the framew
 
 ## Lifecycle, clicks, and caching
 
-![A cached template produces independent player inventories](docs/assets/cache-flow.svg)
-
 For a single surface, override `onOpen(player: Player)` / `onClose(player: Player)`. For a multi-page surface, override `onOpen(player: Player, page: String)` / `onClose(player: Player, page: String)`.
 
 A page transition invokes the old page's close hook and the new page's open hook after successful opening. A cancelled open does not invoke that new page's hooks. If Bukkit closes the previous window before another plugin cancels the new open, the previous window is not restored.
@@ -238,66 +223,49 @@ There are no periodic refresh tasks or automatic player scans. This describes th
 
 ## BMenu & AbstractMenus
 
-These tools have different primary workflows. AdrenalinGUI puts a small typed DSL inside your plugin; BMenu documents YAML-based menus; AbstractMenus documents HOCON-based menus. Both alternatives also offer extension APIs — the comparison does not claim otherwise.
+These are the specific API differences in the checked releases, not a claim that other plugins cannot implement similar menus.
 
-| Capability / workflow | AdrenalinGUI today | BMenu | AbstractMenus |
-| --- | --- | --- | --- |
-| Primary menu definition | Kotlin classes and callbacks | YAML files | HOCON files |
-| Logic for your own plugin services | Direct Kotlin calls | Config actions; extension API for custom logic | Config actions; extension API for custom logic |
-| Multi-section guide | Named pages within one class | Menu navigation actions | Menu navigation actions |
-| Text colors | MiniMessage and legacy formats | MiniMessage and legacy formats | MiniMessage and legacy formats |
-| Ready-made animations / updates | Not implemented | Documented | Documented |
-| Built-in placeholder integration | Optional PlaceholderAPI | PlaceholderAPI | PlaceholderAPI |
-| Editing menus without recompiling your plugin | Not implemented | Reloadable configs | Reloadable configs |
-| Built-in economy/rules/action catalogue | Write your own Kotlin handlers | Configured actions and conditions | Configured rules and actions |
+| AdrenalinGUI provides directly | BMenu 2.7 | AbstractMenus 1.18.0 |
+| --- | --- | --- |
+| Kotlin receiver DSL: `SingleGUISurface`, `newPattern`, `iconAt`, `onClick` | Java extension API and YAML; this Kotlin DSL is not provided | Java extension API and HOCON; this Kotlin DSL is not provided |
+| Named pages and `openPage` in one `MultiGUISurface` class | No equivalent first-party surface/page DSL | No equivalent first-party surface/page DSL |
+| Event-driven menu runtime without a repeating menu-update task | Menu loader runs a tick task | Menu manager runs an update task |
 
-The advantage here is control over your plugin's Kotlin code and an explicit cache lifecycle. The tradeoff is fewer ready-made server-administration features. We do not claim exclusive support for pages or caching, or better performance without equivalent benchmarks.
+The practical difference is that layouts, page navigation and typed calls to your services stay in one Kotlin class. No custom config action or serializer is needed for an ordinary callback. Both alternatives have extension APIs, navigation, placeholders and caches; these are not exclusive AdrenalinGUI features.
 
-For a small “close” button, the styles look like this:
+Scope: [BMenu 2.7 source](https://github.com/By1337/BMenu/tree/2.7/src/main/java/dev/by1337/bmenu), [AbstractMenus 1.18.0 source](https://github.com/AbstractMenus/minecraft-plugin/tree/v1.18.0/src/main/java/ru/abstractmenus). Their current development branches may differ. AdrenalinGUI also needs no extra server plugin for its base API; BMenu requires BLib and PlaceholderAPI, while AbstractMenus has optional integrations.
 
-**BMenu — YAML**, authored using the [official first-menu syntax](https://wiki.bdev.space/bmenu/start):
+## Measured performance
 
-```yaml
-id: guide:home
-size: 9
-title: '<gold>Guide'
-items:
-  exit:
-    slot: 4
-    material: barrier
-    name: '<red>Close'
-    on_click:
-      - close: ''
-```
+Measured on November 20, 2026: Paper 1.21.11 build 132, Java 21.0.11, i5-12400F, 16 GB RAM, Windows 11, JVM heap 1–2 GB. Eight bots ran on the same PC. All three plugins were loaded in one server and exercised sequentially in changing order.
 
-**AbstractMenus — HOCON**, authored using the [official creation guide](https://abstractmenus.github.io/docs/en/start/how-to/):
+Each window had 54 PAPER items, four lore lines and matching legacy colors. The second scenario added viewer-specific placeholders in the title, names and lore. After warmup, three rounds produced **1,200 opens and 1,200 actions per engine per scenario**. Bots verified 466,560 items including warmup.
 
-```hocon
-title: "Guide"
-size: 1
-items: [
-  {
-    slot: 4
-    material: BARRIER
-    name: "Close"
-    click { closeMenu: true }
-  }
-]
-```
+### Server-side opening
 
-**AdrenalinGUI — inside a pattern block:**
+Time from the public open API call until return, including closing/replacing the old window. Client network/render time is excluded. Lower is better.
 
-```kotlin
-iconAt(4) {
-    type(Material.BARRIER)
-    name("<red>Close")
-    onClick { close() }
-}
-```
+| Engine | Static p50 / p95, ms | Placeholders p50 / p95, ms |
+| --- | ---: | ---: |
+| AdrenalinGUI | 0.070 / 0.197 | 0.586 / 0.985 |
+| BMenu 2.7 | 0.100 / 0.247 | 0.136 / 0.310 |
+| AbstractMenus 1.18.0 | 0.297 / 0.512 | 0.348 / 0.620 |
 
-The other-plugin examples illustrate their configuration syntax; they are not AdrenalinGUI configuration files and have not been executed by this project's tests.
+![Median opening time, with p95 markers](docs/assets/benchmark-open.png)
 
-Sources checked on November 19, 2026: [BMenu reference](https://wiki.bdev.space/bmenu/reference), [BMenu repository/API coordinates](https://github.com/By1337/BMenu), [AbstractMenus overview](https://abstractmenus.github.io/docs/en/), [AbstractMenus repository](https://github.com/AbstractMenus/minecraft-plugin).
+### Click-to-action delay
+
+Time from receipt of an inventory click on the server until the same player command executes. This includes the engine's scheduling, not client network latency.
+
+| Engine | Static p50 / p95, ms | Placeholders p50 / p95, ms |
+| --- | ---: | ---: |
+| AdrenalinGUI | 25.287 / 49.034 | 25.190 / 48.874 |
+| BMenu 2.7 | 0.021 / 0.068 | 0.025 / 0.084 |
+| AbstractMenus 1.18.0 | 0.025 / 0.094 | 0.023 / 0.064 |
+
+AdrenalinGUI had the lowest static-menu median in this run, but was slower than both alternatives with placeholders. Its next-tick callback policy also produced about 25 ms median action delay; the other two executed the tested action in the click event. There is no overall “fastest” claim.
+
+This is one workstation run, not a capacity/TPS benchmark. Round-to-round timings varied. JVM HTTP(S) downloads/update checks were blocked; BMenu's optional 1.7 compatibility bridge was unavailable, and its native 2.7 path was verified. Read the [method, limitations and reproduction steps](benchmarks/README.md), [raw samples](benchmarks/results/2026-11-20/samples.json), [per-round summary](benchmarks/results/2026-11-20/summary.json), and [environment](benchmarks/results/2026-11-20/environment.json).
 
 ## Examples
 
@@ -334,7 +302,7 @@ Static Java inventory menus, named category pages, MiniMessage, optional Placeho
 
 Automatic list pagination, animated items, periodic updates, economy hooks, config loaders, native Bedrock forms, and automatic resource-pack/client detection are not implemented. The `MenuVariant` enum reserves `JAVA_RP`, `JAVA_NRP`, `BEDROCK_RP`, and `BEDROCK_NRP`; these values do not enable those client features.
 
-Run `./gradlew test` for cache, pattern, page-registry, and lifecycle unit tests. Examples are compiled too; live server behavior still needs in-server verification.
+Run `./gradlew test` for cache, pattern, page-registry, and lifecycle unit tests. Examples are compiled too; the published bot benchmark additionally checks the listed live-server scenarios.
 
 ## Feedback
 
@@ -351,3 +319,5 @@ title("&6Server <bold>guide</bold>")
 name("&#55FFAA%player_name%")
 loreLine("§7Balance: &e%vault_eco_balance%")
 ```
+
+[Оформление и источники изображений](docs/assets/README.md)

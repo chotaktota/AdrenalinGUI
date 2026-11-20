@@ -1,0 +1,75 @@
+{
+  "os": "Windows-11-10.0.26200-SP0",
+  "cpu": "Intel Core i5-12400F",
+  "ram_gib": 16,
+  "jvm": "Oracle Java 21.0.11+9-LTS",
+  "jvm_args": [
+    "-Dterminal.jline=false",
+    "-Dterminal.ansi=false",
+    "-Dhttps.proxyHost=127.0.0.1",
+    "-Dhttps.proxyPort=9",
+    "-Dhttp.proxyHost=127.0.0.1",
+    "-Dhttp.proxyPort=9",
+    "-Dhttp.nonProxyHosts=localhost|127.*",
+    "-Xms1G",
+    "-Xmx2G",
+    "-jar",
+    "paper.jar",
+    "--nogui"
+  ],
+  "paper_build": 132,
+  "minecraft": "1.21.11",
+  "bots": 8,
+  "mineflayer": "4.39.0",
+  "minecraft_protocol": "1.68.0",
+  "adrenalingui_commit": "a5cc7a3612efa01efc728c0f920b822508a84653",
+  "bmenu_source_commit": "bc0d19ef98addfa55a1bacfb79b85b88df244a16",
+  "artifacts": {
+    "paper.jar": {
+      "bytes": 54846016,
+      "sha256": "5ffef465eeeb5f2a3c23a24419d97c51afd7dbb4923ff42df9a3f58bba1ccfba"
+    },
+    "BMenu-2.7.jar": {
+      "bytes": 350365,
+      "sha256": "729512c8baae305c8e2d4d8336488e72214ba4168542c17727b35f6284863cc4"
+    },
+    "AbstractMenus-1.18.0.jar": {
+      "bytes": 2300661,
+      "sha256": "461018514150a5990fc54bcf0a2bac833028601e7d9d40e8503b06bd7cb7b73d"
+    },
+    "PlaceholderAPI.jar": {
+      "bytes": 1160690,
+      "sha256": "fde03259f5af6938f3c33eeb4d814000a1adabf1d2304ce14970be81f609a437"
+    },
+    "BLibV2-1.7.9.jar": {
+      "bytes": 2837533,
+      "sha256": "9b551b0018a7f9085c8914d7014d2984518184e0e03f5412e71801dc961cec0d"
+    },
+    "WorldEdit-compatible.jar": {
+      "bytes": 7510632,
+      "sha256": "0ee152b1be5dfb51500505e2bf5a8c9d66f09c7fa484bf9aea384d7e7b459b06",
+      "version": "7.4.2"
+    },
+    "AdrenalinGUI-1.0-SNAPSHOT.jar": {
+      "bytes": 1993105,
+      "sha256": "32edaaac457cf228f33e91c3d9761510494aa7c6818ed911a642094aa213db44"
+    }
+  },
+  "measurement_date": "2026-11-20",
+  "notes": [
+    "All three engines loaded in one server; cases exercised sequentially.",
+    "Legacy text in all fixtures to match visible output in the tested release defaults.",
+    "Eight bots on the server PC; Rust closed during the measured series.",
+    "BLibV2 1.7.9 release asset reports plugin metadata version 1.7.8.",
+    "WorldEdit 7.4.2 was loaded for compatibility.",
+    "JVM HTTP(S) proxy pointed at closed localhost port; update/download checks failed.",
+    "BMenu optional legacy 1.7 bridge was unavailable; modern 2.7 menus passed client validation.",
+    "Server open duration excludes client network/render time."
+  ],
+  "harness_sha256": "ed581a56cf1aedda6cd28b08d4b54edd5ca2d97c6aacd2b81e3e444924820d5a",
+  "client_validation": {
+    "windows_including_warmup": 8640,
+    "items_including_warmup": 466560,
+    "errors": 0
+  }
+}
