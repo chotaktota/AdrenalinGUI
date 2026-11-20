@@ -27,7 +27,7 @@ open class ItemBuilder {
     }
     fun glow(value: Boolean = true) { MenuEngine.requireSync(); glowing = value }
     fun allFlags() { MenuEngine.requireSync(); hideFlags = true }
-    internal fun compile(): CachedItem = CachedItem(build(), displayName, lines.toList())
+    internal fun compile(): CachedItem = CachedItem(build(), displayName, lines.toList(), (this as? dev.aethereal.agui.surface.icon.Icon)?.update)
 
     private fun build(): ItemStack {
         MenuEngine.requireSync()

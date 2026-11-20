@@ -62,4 +62,36 @@ class MenuTextTest {
         assertFalse(MenuText("100%%").dynamic)
         assertFalse(MenuText("%player\nname%").dynamic)
     }
+    @Test fun onePlaceholderIsResolvedOnceAcrossDifferentLines() {
+        var calls = 0
+        val context = TextContext { calls++; it.replace("%balance%", "100") }
+        context.render(MenuText("<green>Баланс: %balance%"))
+        context.render(MenuText("<red>Цена: %balance%"))
+        assertEquals(1, calls)
+    }
+
+    @Test fun parsedResultIsReusedWithoutCachingPlaceholderValues() {
+        val text = MenuText("<green>%balance%")
+        var value = "100"
+        fun render() = TextContext { value }.render(text)
+        val first = render()
+        assertSame(first, render())
+        value = "250"
+        assertEquals(Component.text("250", NamedTextColor.GREEN), render())
+        value = "100"
+        assertSame(first, render())
+    }
+
+    @Test fun resultEvictionStillUsesCurrentValue() {
+        val text = MenuText("%value%")
+        repeat(40) { index -> assertEquals(Component.text(index.toString()), TextContext { index.toString() }.render(text)) }
+        assertEquals(Component.text("0"), TextContext { "0" }.render(text))
+    }
+    @Test fun compiledTokensPreserveAdjacentPlaceholdersAndTrailingText() {
+        val text = MenuText("<green>%a%%b% / %a%!")
+        val calls = mutableListOf<String>()
+        val context = TextContext { token -> calls += token; if (token == "%a%") "А" else "Б" }
+        assertEquals(Component.text("АБ / А!", NamedTextColor.GREEN), context.render(text))
+        assertEquals(listOf("%a%", "%b%"), calls)
+    }
 }

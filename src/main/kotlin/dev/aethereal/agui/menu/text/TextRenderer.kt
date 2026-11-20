@@ -8,7 +8,7 @@ internal class TextRenderer(private val plugin: Plugin) {
     fun forPlayer(player: Player): TextContext {
         MenuEngine.requireSync()
         return if (plugin.server.pluginManager.isPluginEnabled("PlaceholderAPI")) {
-            TextContext { PapiParser.parse(player, it) }
-        } else TextContext { it }
+            TextContext(player) { PapiParser.parse(player, it) }
+        } else TextContext(player) { it }
     }
 }

@@ -62,6 +62,11 @@ class MenuBenchmark : JavaPlugin(), Listener {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         when (command.name) {
+            "benchverify" -> if (sender !is Player) {
+                val player = server.getPlayerExact(args.firstOrNull() ?: "Bench0") ?: error("Тестовый игрок не найден")
+                verifyDynamic(player)
+                sender.sendMessage("Динамические иконки: проверка пройдена")
+            }
             "benchphase" -> {
                 if (sender !is Player) {
                     phase = args.firstOrNull() ?: "warmup"
@@ -117,6 +122,51 @@ class MenuBenchmark : JavaPlugin(), Listener {
             }
         }
         return true
+    }
+
+    private fun verifyDynamic(viewer: Player) {
+        val engine = (server.pluginManager.getPlugin("AdrenalinGUI") as dev.aethereal.agui.AdrenalinGUI).engine
+        var value = 1
+        var opened = 0
+        var closed = 0
+        val menu = object : SingleGUISurface(1, this) {
+            override fun onOpen(player: Player) { opened++ }
+            override fun onClose(player: Player) { closed++ }
+            override fun onUpdateNodes() {
+                with(newPattern("XX.......")) {
+                    title("Динамика")
+                    iconAt(pos('X')) {
+                        type(Material.PAPER)
+                        dynamic { player ->
+                            name("<green>${player.name}: $value")
+                            lore("&eЗначение: $value", "%bench_name%")
+                            glow(value == 1)
+                            if (value == 1) enchant(org.bukkit.enchantments.Enchantment.UNBREAKING, 2)
+                        }
+                    }
+                }
+            }
+        }
+        menu.open(viewer)
+        val inventory = viewer.openInventory.topInventory
+        val old = checkNotNull(inventory.getItem(0)).clone()
+        check(old.getEnchantmentLevel(org.bukkit.enchantments.Enchantment.UNBREAKING) == 2)
+        value = 2
+        engine.refresh(viewer, 0)
+        val changed = checkNotNull(inventory.getItem(0))
+        check(changed != old && inventory.getItem(1) == old)
+        check(!changed.containsEnchantment(org.bukkit.enchantments.Enchantment.UNBREAKING))
+        check(changed.itemMeta.enchantmentGlintOverride == false)
+        check(changed.itemMeta.customName() == net.kyori.adventure.text.Component.text("${viewer.name}: 2", net.kyori.adventure.text.format.NamedTextColor.GREEN)
+            .decoration(net.kyori.adventure.text.format.TextDecoration.ITALIC, false))
+        engine.refresh(viewer)
+        check(inventory.getItem(1) == changed)
+        check(opened == 1 && closed == 0)
+        viewer.closeInventory()
+        menu.open(viewer)
+        check(viewer.openInventory.topInventory.getItem(0) == changed)
+        viewer.closeInventory()
+        check(opened == 2 && closed == 2)
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

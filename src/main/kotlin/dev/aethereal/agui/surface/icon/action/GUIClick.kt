@@ -14,7 +14,12 @@ class GUIClick internal constructor(
     val isLeftClick: Boolean get() = click.isLeftClick
     val isRightClick: Boolean get() = click.isRightClick
     val isShiftClick: Boolean get() = click.isShiftClick
-    fun close() { player.closeInventory() }
+    fun refresh(vararg slots: Int) {
+        MenuEngine.requireSync()
+        val session = player.openInventory.topInventory.holder as? dev.aethereal.agui.menu.session.MenuSession ?: return
+        session.refresh(if (slots.isEmpty()) IntArray(session.inventory.size) { it } else slots)
+    }
+    fun close() { MenuEngine.requireSync(); player.closeInventory() }
     fun openPage(page: String) {
         MenuEngine.requireSync()
         checkNotNull(navigate) { "Переход между страницами доступен только в MultiGUISurface" }.invoke(page)

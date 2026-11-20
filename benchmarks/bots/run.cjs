@@ -55,6 +55,11 @@ async function main() {
   await rcon.send('gamerule minecraft:advance_time false')
   await rcon.send('gamerule minecraft:spawn_mobs false')
   await sleep(3000)
+  if (process.env.BENCH_VERIFY === '1') {
+    const result = await rcon.send('benchverify Bench0')
+    if (!result.includes('проверка пройдена')) throw new Error('Dynamic refresh verification failed: '+result)
+    console.log('Dynamic refresh verification passed')
+  }
   const cases=['agui/static','bmenu/static','abstract/static','agui/dynamic','bmenu/dynamic','abstract/dynamic']
   async function scenario(key,count) {
     const [engine,mode]=key.split('/')
@@ -69,6 +74,11 @@ async function main() {
         bot.chat('/benchopen '+engine+' '+mode)
         await opened
         await sleep(80)
+        const itemDeadline = Date.now()+5000
+        while (Array.from({length:54},(_,slot)=>bot.currentWindow?.slots[slot]).some(item=>!item || item.name!=='paper' || item.count!==1)) {
+          if (Date.now()>itemDeadline) throw new Error('Item delivery timeout '+key+' '+bot.username)
+          await sleep(20)
+        }
         for(let slot=0;slot<54;slot++) {
           const item=bot.currentWindow.slots[slot]
           if(!item || item.name!=='paper' || item.count!==1) throw new Error('Invalid item '+key+' slot '+slot)

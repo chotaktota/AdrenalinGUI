@@ -38,6 +38,11 @@ internal class MenuSession(
         }
         finally { if (player.openInventory.topInventory !== contents) dispose() }
     }
+    fun refresh(slots: IntArray) {
+        MenuEngine.requireSync()
+        if (!active || player.openInventory.topInventory !== contents) return
+        template.refresh(contents, engine.text.forPlayer(player), slots)
+    }
     fun dispatch(slot: Int, click: ClickType) {
         val handler = template.handler(slot) ?: return
         if (queued || !active || !owner.isEnabled) return

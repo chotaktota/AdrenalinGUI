@@ -10,6 +10,12 @@ import org.bukkit.plugin.Plugin
 
 class MenuEngine internal constructor(val plugin: AdrenalinGUI) : AutoCloseable {
     val menus = MenuRegistry()
+    private val economyAccess by lazy { dev.aethereal.agui.menu.integration.MenuEconomy(plugin) }
+    private val permissionAccess by lazy { dev.aethereal.agui.menu.integration.MenuPermissions(plugin) }
+    val economy: dev.aethereal.agui.menu.integration.MenuEconomy
+        get() { requireSync(); checkAvailable(); check(plugin.server.pluginManager.isPluginEnabled("Vault")) { "Vault недоступен" }; return economyAccess }
+    val permissions: dev.aethereal.agui.menu.integration.MenuPermissions
+        get() { requireSync(); checkAvailable(); check(plugin.server.pluginManager.isPluginEnabled("LuckPerms")) { "LuckPerms недоступен" }; return permissionAccess }
     internal val text = TextRenderer(plugin)
     private val sessions = linkedSetOf<MenuSession>()
     private var closed = false
@@ -30,6 +36,14 @@ class MenuEngine internal constructor(val plugin: AdrenalinGUI) : AutoCloseable 
         check(surface.plugin.isEnabled) { "Плагин-владелец меню отключён" }
         menus.track(surface)
         MenuSession(this, surface.plugin, player, template, onOpen, onClose, page, onNavigate).open()
+    }
+
+    fun refresh(player: Player, vararg slots: Int) {
+        requireSync()
+        checkAvailable()
+        val session = player.openInventory.topInventory.holder as? MenuSession ?: return
+        if (session.engine !== this || session.player.uniqueId != player.uniqueId) return
+        session.refresh(if (slots.isEmpty()) IntArray(session.inventory.size) { it } else slots)
     }
 
     internal fun started(session: MenuSession) { sessions.add(session) }

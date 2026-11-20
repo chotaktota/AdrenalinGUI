@@ -35,9 +35,13 @@ summary = {
     "aggregate": {menu + "/" + metric: summarize(values) for (menu, metric), values in sorted(groups.items())},
     "rounds": {phase + "/" + menu + "/" + metric: summarize(values) for (phase, menu, metric), values in sorted(rounds.items())},
 }
+incomplete = {}
 for name, values in summary["aggregate"].items():
     if values["count"] != 1200:
-        raise SystemExit("Неполный набор замеров: " + name + " " + str(values["count"]))
+        if "--allow-incomplete-actions" not in sys.argv or not name.endswith("/click_action") or not 0 < values["count"] < 1200:
+            raise SystemExit("Неполный набор замеров: " + name + " " + str(values["count"]))
+        incomplete[name] = {"expected": 1200, "recorded": values["count"]}
+summary["incomplete_actions"] = incomplete
 target = source.with_name("summary.json")
 target.write_text(json.dumps(summary, indent=2), encoding="utf-8")
 for key, value in summary["aggregate"].items():

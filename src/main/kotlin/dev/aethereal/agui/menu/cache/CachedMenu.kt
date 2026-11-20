@@ -31,5 +31,14 @@ internal class CachedMenu(pattern: Pattern) {
         }
     }
 
+    fun refresh(inventory: Inventory, context: TextContext, slots: IntArray) {
+        require(slots.all { it in 0 until size }) { "Слот за пределами меню" }
+        val rendered = IdentityHashMap<CachedItem, ItemStack>()
+        for (slot in slots.distinct()) {
+            val next = items[slot]?.let { rendered.getOrPut(it) { it.render(context) }.clone() }
+            if (inventory.getItem(slot) != next) inventory.setItem(slot, next)
+        }
+    }
+
     fun handler(slot: Int): (GUIClick.() -> Unit)? = handlers.getOrNull(slot)
 }

@@ -167,7 +167,7 @@ loreLine("<gray>Balance: <yellow>%vault_eco_balance%")
 
 These calls belong in the title or item blocks shown above. The complete [PlayerProfileGUI](src/test/kotlin/dev/aethereal/agui/example/PlayerProfileGUI.kt) example compiles with the project.
 
-Resolution runs on the main thread for the player opening the menu, before MiniMessage parsing. Placeholder values containing MiniMessage tags are formatted too; legacy color codes are also supported, including values returned by expansions. Player values are never stored in the shared menu cache. Identical source text is resolved only once within a single opening, and plain static text keeps its cached component.
+Resolution runs on the main thread for the player opening the menu, before MiniMessage parsing. Placeholder values containing MiniMessage tags are formatted too; legacy color codes are also supported, including values returned by expansions. Placeholder values are read afresh; a bounded shared cache reuses components with identical resolved text. Identical source text is resolved only once within a single opening, and plain static text keeps its cached component.
 
 Values refresh when the menu or page opens again. An already open inventory does not update automatically. See the [PlaceholderAPI usage documentation](https://wiki.placeholderapi.com/developers/using-placeholderapi/) for expansion requirements.
 
@@ -237,6 +237,8 @@ Scope: [BMenu 2.7 source](https://github.com/By1337/BMenu/tree/2.7/src/main/java
 
 ## Measured performance
 
+The tables below describe the version **before the placeholder optimization**. See dynamic icons for current cache behavior.
+
 Measured on November 20, 2026: Paper 1.21.11 build 132, Java 21.0.11, i5-12400F, 16 GB RAM, Windows 11, JVM heap 1–2 GB. Eight bots ran on the same PC. All three plugins were loaded in one server and exercised sequentially in changing order.
 
 Each window had 54 PAPER items, four lore lines and matching legacy colors. The second scenario added viewer-specific placeholders in the title, names and lore. After warmup, three rounds produced **1,200 opens and 1,200 actions per engine per scenario**. Bots verified 466,560 items including warmup.
@@ -267,6 +269,20 @@ AdrenalinGUI had the lowest static-menu median in this run, but was slower than 
 
 This is one workstation run, not a capacity/TPS benchmark. Round-to-round timings varied. JVM HTTP(S) downloads/update checks were blocked; BMenu's optional 1.7 compatibility bridge was unavailable, and its native 2.7 path was verified. Read the [method, limitations and reproduction steps](benchmarks/README.md), [raw samples](benchmarks/results/2026-11-20/samples.json), [per-round summary](benchmarks/results/2026-11-20/summary.json), and [environment](benchmarks/results/2026-11-20/environment.json).
 
+### After optimization: approximate run with Rust open
+
+Rust remained running (around 8 GiB). The same menus and eight bots produced 1,200 opens per case and all 7,200 action samples. All 466,560 item checks passed. This is an estimate under unrelated load, not a clean comparison against the original build.
+
+| Engine | Static: p50 / p95, ms | Placeholders: p50 / p95, ms |
+| --- | ---: | ---: |
+| AdrenalinGUI | 0.158 / 0.414 | 0.217 / 0.559 |
+| BMenu 2.7 | 0.177 / 0.441 | 0.206 / 0.597 |
+| AbstractMenus 1.18.0 | 0.501 / 0.989 | 0.578 / 1.151 |
+
+BMenu retains a slightly lower placeholder median; AdrenalinGUI has the lower p95. A roughly 5% median gap on a busy PC does not establish a stable advantage. AdrenalinGUI click latency remains around 25 ms because callbacks are safely deferred to the next tick.
+
+[Raw samples](benchmarks/results/2026-11-20-loaded-v2/samples.json), [statistics](benchmarks/results/2026-11-20-loaded-v2/summary.json), [conditions and SHA-256](benchmarks/results/2026-11-20-loaded-v2/environment.json). A clean rerun without the game is still needed.
+
 ## Examples
 
 | Example | What it shows |
@@ -275,6 +291,7 @@ This is one workstation run, not a capacity/TPS benchmark. Round-to-round timing
 | [HelpGUI](src/test/kotlin/dev/aethereal/agui/example/HelpGUI.kt) | Four named pages and back buttons |
 | [HelpExamplePlugin](src/test/kotlin/dev/aethereal/agui/example/HelpExamplePlugin.kt) | Registration and a player command |
 | [PreviewGUI](src/test/kotlin/dev/aethereal/agui/example/PreviewGUI.kt) | The larger six-row layout |
+| [DynamicEconomyGUI](src/test/kotlin/dev/aethereal/agui/example/DynamicEconomyGUI.kt) | Dynamic fields, refresh, economy and permission services |
 
 ## Project layout
 
@@ -298,9 +315,9 @@ surface/
 
 ## Current scope
 
-Static Java inventory menus, named category pages, MiniMessage, optional PlaceholderAPI text, click callbacks, lifecycle hooks, and explicit cache invalidation are implemented.
+Java inventory menus, named category pages, MiniMessage/legacy, optional PlaceholderAPI, dynamic icons with explicit refresh, Vault economy, LuckPerms, click callbacks and lifecycle hooks are implemented.
 
-Automatic list pagination, animated items, periodic updates, economy hooks, config loaders, native Bedrock forms, and automatic resource-pack/client detection are not implemented. The `MenuVariant` enum reserves `JAVA_RP`, `JAVA_NRP`, `BEDROCK_RP`, and `BEDROCK_NRP`; these values do not enable those client features.
+Automatic list pagination, animated items, periodic updates, config loaders, native Bedrock forms, and automatic resource-pack/client detection are not implemented. The `MenuVariant` enum reserves `JAVA_RP`, `JAVA_NRP`, `BEDROCK_RP`, and `BEDROCK_NRP`; these values do not enable those client features.
 
 Run `./gradlew test` for cache, pattern, page-registry, and lifecycle unit tests. Examples are compiled too; the published bot benchmark additionally checks the listed live-server scenarios.
 
@@ -321,3 +338,59 @@ loreLine("§7Balance: &e%vault_eco_balance%")
 ```
 
 [Оформление и источники изображений](docs/assets/README.md)
+
+## Dynamic icons and refresh
+
+```kotlin
+iconAt(pos('B')) {
+    type(Material.PAPER)
+    dynamic { player ->
+        val balance = engine.economy.balance(player)
+        name("<gold>${engine.economy.format(balance)}")
+        lore("&7Player: %player_name%", "<gray>Balance: $balance")
+        glow(balance >= 100.0)
+        if (balance >= 100.0) enchant(Enchantment.UNBREAKING, 1)
+    }
+    onClick {
+        val result = engine.economy.withdraw(player, 100.0)
+        if (result.success) refresh(slot)
+    }
+}
+```
+
+Here `engine` is `AdrenalinGUI.engine`; import `org.bukkit.Material` and `org.bukkit.enchantments.Enchantment`.
+The `dynamic` callback runs on the server thread when opening or explicitly refreshing. Each pass starts with a separate copy of the original item. `lore(...)` replaces all lore; `name`, `glow`, `enchant` and `removeEnchant` affect that item only. Changes do not accumulate between passes.
+
+Use `engine.refresh(player)` for all items, or `engine.refresh(player, 11, 13)` for zero-based slots. Click callbacks also expose `refresh()` and `refresh(slot)`. Refresh keeps the title, page and lifecycle hooks unchanged; reopen to change a title. No timers or player scans are scheduled.
+
+Placeholder values are resolved for each open/refresh, with repeated tokens resolved once per pass. Parsed text and item metadata keep at most 16 result variants per element. Cache keys use the current result, so changed values need no cache invalidation. Dynamic callback results are never shared through the item cache. Fetch expensive database data in your own asynchronous service, then refresh on the server thread.
+
+## Vault and LuckPerms
+
+Install Vault plus an economy provider and/or LuckPerms as optional plugins. Their APIs are not bundled. Their placeholders still require PlaceholderAPI and the appropriate expansions.
+
+```kotlin
+val money = engine.economy
+val balance = money.balance(player)
+val affordable = money.has(player, 100.0)
+val payment = money.withdraw(player, 100.0)
+val refund = money.deposit(player, 100.0)
+val formatted = money.format(balance)
+
+val rights = engine.permissions
+val allowed = rights.hasPermission(player, "shop.vip") == true
+val group = rights.primaryGroup(player.uniqueId)
+val groups = rights.groups(player)
+val prefix = rights.prefix(player)
+val suffix = rights.suffix(player)
+rights.setPermission(player.uniqueId, "shop.vip", duration = Duration.ofDays(7))
+rights.unsetPermission(player.uniqueId, "shop.old")
+rights.addGroup(player.uniqueId, "vip", duration = Duration.ofDays(7))
+rights.removeGroup(player.uniqueId, "old")
+```
+
+Import `java.time.Duration`. Amounts must be finite and nonnegative. Check `Transaction.success` even after `has`; providers can reject a transaction. Access without the required plugin/provider fails with a diagnostic error.
+
+LuckPerms writes return `CompletableFuture<Void>`. Never block the server thread with `join()` or `get()`. Handle failures and schedule Bukkit work, including refresh, on the server thread from continuations. Writes affect the named global nodes and preserve contextual nodes; removing a direct permission does not remove inherited permissions. Group validation and purchase rules belong to your plugin. A withdrawal and an asynchronous group assignment are separate operations.
+
+Upstream APIs: [Vault Economy](https://github.com/MilkBowl/VaultAPI/blob/master/src/main/java/net/milkbowl/vault/economy/Economy.java), [LuckPerms UserManager](https://github.com/LuckPerms/LuckPerms/blob/master/api/src/main/java/net/luckperms/api/model/user/UserManager.java). Add compileOnly `net.luckperms:api:5.4` to your plugin when using `permissions.api`, `user` or `loadUser` directly.

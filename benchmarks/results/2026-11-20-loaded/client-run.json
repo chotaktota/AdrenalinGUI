@@ -1,0 +1,12 @@
+{
+  "started": "2026-11-20T20:28:17.516Z",
+  "finished": "2026-11-20T20:32:36.692Z",
+  "checks": {
+    "windows": 8640,
+    "items": 466560
+  },
+  "bots": 8,
+  "rounds": 3,
+  "opensPerBotPerCasePerRound": 50,
+  "warmupPerBotPerCase": 30
+}

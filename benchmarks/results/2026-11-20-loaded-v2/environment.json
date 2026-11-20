@@ -1,0 +1,111 @@
+{
+  "os": "Windows-11-10.0.26200-SP0",
+  "cpu": "Intel Core i5-12400F",
+  "ram_gib": 16,
+  "jvm": "Oracle Java 21.0.11+9-LTS",
+  "jvm_args": [
+    "-Dterminal.jline=false",
+    "-Dterminal.ansi=false",
+    "-Dhttps.proxyHost=127.0.0.1",
+    "-Dhttps.proxyPort=9",
+    "-Dhttp.proxyHost=127.0.0.1",
+    "-Dhttp.proxyPort=9",
+    "-Dhttp.nonProxyHosts=localhost|127.*",
+    "-Xms1G",
+    "-Xmx2G",
+    "-jar",
+    "paper.jar",
+    "--nogui"
+  ],
+  "paper_build": 132,
+  "minecraft": "1.21.11",
+  "bots": 8,
+  "mineflayer": "4.39.0",
+  "minecraft_protocol": "1.68.0",
+  "bmenu_source_commit": "bc0d19ef98addfa55a1bacfb79b85b88df244a16",
+  "artifacts": {
+    "paper.jar": {
+      "bytes": 54846016,
+      "sha256": "5ffef465eeeb5f2a3c23a24419d97c51afd7dbb4923ff42df9a3f58bba1ccfba"
+    },
+    "BMenu-2.7.jar": {
+      "bytes": 350365,
+      "sha256": "729512c8baae305c8e2d4d8336488e72214ba4168542c17727b35f6284863cc4"
+    },
+    "AbstractMenus-1.18.0.jar": {
+      "bytes": 2300661,
+      "sha256": "461018514150a5990fc54bcf0a2bac833028601e7d9d40e8503b06bd7cb7b73d"
+    },
+    "PlaceholderAPI.jar": {
+      "bytes": 1160690,
+      "sha256": "fde03259f5af6938f3c33eeb4d814000a1adabf1d2304ce14970be81f609a437"
+    },
+    "BLibV2-1.7.9.jar": {
+      "bytes": 2837533,
+      "sha256": "9b551b0018a7f9085c8914d7014d2984518184e0e03f5412e71801dc961cec0d"
+    },
+    "WorldEdit-compatible.jar": {
+      "bytes": 7510632,
+      "sha256": "0ee152b1be5dfb51500505e2bf5a8c9d66f09c7fa484bf9aea384d7e7b459b06",
+      "version": "7.4.2"
+    },
+    "AdrenalinGUI-1.0-SNAPSHOT.jar": {
+      "bytes": 2019713,
+      "sha256": "31e0e2017f03abe8ed1a1fec12c505794306450b41e5bd534fa53e104847a4c1"
+    }
+  },
+  "measurement_date": "2026-11-20",
+  "notes": [
+    "All three engines loaded in one server; cases exercised sequentially.",
+    "Legacy text in all fixtures to match visible output in the tested release defaults.",
+    "BLibV2 1.7.9 release asset reports plugin metadata version 1.7.8.",
+    "WorldEdit 7.4.2 was loaded for compatibility.",
+    "JVM HTTP(S) proxy pointed at closed localhost port; update/download checks failed.",
+    "BMenu optional legacy 1.7 bridge was unavailable; modern 2.7 menus passed client validation.",
+    "Server open duration excludes client network/render time.",
+    "Rust remained running and used approximately 8 GiB; this is not a clean performance comparison with the baseline.",
+    "Client waits up to 5 seconds for item delivery before validation; server API timing remains unchanged.",
+    "Dynamic refresh verification passed before warmup: selected slots, enchant removal, fresh reopen, unchanged lifecycle.",
+    "Second optimization iteration: precompiled placeholder fragments and identity keys for immutable text components."
+  ],
+  "harness_sha256": "2007b9132ff805bcccb3b099cc8eac5f32fc3502e77c0bb4caea7a32e1dfea71",
+  "client_validation": {
+    "windows_including_warmup": 8640,
+    "items_including_warmup": 466560,
+    "errors": 0
+  },
+  "adrenalingui_base_commit": "96307c6bf8695c4899c227a49f0673093cbbe985",
+  "adrenalingui_source_sha256": "44f68ca9f02411739aec959adaf5e3b315ee33aa800c3e492be26757c0f6300d",
+  "source_files": {
+    "src/main/kotlin/dev/aethereal/agui/AdrenalinGUI.kt": "247160e0290b9f4d6200660676cbca94eaf267c536106d577577c0b8eab51201",
+    "src/main/kotlin/dev/aethereal/agui/menu/cache/CachedItem.kt": "59855243e0d740e962436871a700ab3c99bea7eae47de07a38dbe1399604465a",
+    "src/main/kotlin/dev/aethereal/agui/menu/cache/CachedMenu.kt": "d9e573222de26bc1fd7f6dbfbc3c604dcd64e2c32955048024a5e33bf1b84c60",
+    "src/main/kotlin/dev/aethereal/agui/menu/cache/MenuCache.kt": "82856f64b57e08672c834d524e79195c75cfedb6966584fdea3ea7d8dc2237ad",
+    "src/main/kotlin/dev/aethereal/agui/menu/integration/MenuEconomy.kt": "a5a9cc4319c8613bb8f65cf761fbe9547605871eb0045aa9bcb1460f48a51763",
+    "src/main/kotlin/dev/aethereal/agui/menu/integration/MenuPermissions.kt": "21645b55cef393482121f802fa191845b8bdb70d64173e91091bbde8299306d5",
+    "src/main/kotlin/dev/aethereal/agui/menu/MenuEngine.kt": "0eeca42d415f8a8a8548d16c553a00d372c3d12cf5b35265558783d6162114f1",
+    "src/main/kotlin/dev/aethereal/agui/menu/MenuRegistry.kt": "6fd3fc91b57a2c4953a8426531a48718cd67b3f8a60adaedb00790c29e310d78",
+    "src/main/kotlin/dev/aethereal/agui/menu/MenuVariant.kt": "fccb120b629bef966ebc41f67450f5df5f6d342eb6ec2d627d4a4bcf15127371",
+    "src/main/kotlin/dev/aethereal/agui/menu/page/MenuPage.kt": "11392754e99d5e4197ad3228bec7a834a1bfc79324913696ccd368f2326fddc4",
+    "src/main/kotlin/dev/aethereal/agui/menu/page/PageManager.kt": "74ca1f3cdeedb5039e0693215629553c5abc85e3dc23ebc70af9597fd87bfbe8",
+    "src/main/kotlin/dev/aethereal/agui/menu/page/registry/PageRegistry.kt": "8bf53c60206762032b7faab9e570e3cc1b8674d431acc21ac6646d753ee87512",
+    "src/main/kotlin/dev/aethereal/agui/menu/session/MenuSession.kt": "37c7f6648541682481b7b3ddf2fbc7450aa4f0e8918129699635a719bda4a20a",
+    "src/main/kotlin/dev/aethereal/agui/menu/session/SessionLifecycle.kt": "6ea4ddcf6d261adcf8f739e664eab7e5d45726cb96494b21edd50d65987b9dcf",
+    "src/main/kotlin/dev/aethereal/agui/menu/text/LegacyFormatting.kt": "a876fca9442fc8fd8b603957d5d7d0f32ee0987fef6892bf92526daaee46e7f4",
+    "src/main/kotlin/dev/aethereal/agui/menu/text/MenuText.kt": "2fddb3e990a80377e483e51966de953cc9763e2a07b9084d7b8cae12d778f5df",
+    "src/main/kotlin/dev/aethereal/agui/menu/text/PapiParser.kt": "00e6c3d9755cae7a86fe6cc6de7495f9cb6b3a650ff32c38f1c037b7dd91b173",
+    "src/main/kotlin/dev/aethereal/agui/menu/text/TextContext.kt": "735014aefe1049379e6a545599347d174c9d374985392dde11626fe65a6ecef6",
+    "src/main/kotlin/dev/aethereal/agui/menu/text/TextRenderer.kt": "cd1a594e153203cb6f8f4573e2de8c476146291cd25e583b5454ddf6ab651761",
+    "src/main/kotlin/dev/aethereal/agui/surface/GUISurface.kt": "c1a8d61f84d656fc28e1aa9e97ceadfc7101ce92d1ccf1a31f9e48ebe6b81969",
+    "src/main/kotlin/dev/aethereal/agui/surface/icon/action/GUIClick.kt": "18c2bd3f87f58cc668a99f940a835515624324e2bedec28c2f7f798cedba713c",
+    "src/main/kotlin/dev/aethereal/agui/surface/icon/action/listener/ClickListener.kt": "5a5f831cd4b12359b9dcda49f00b62d1bde581b7126c49288adb927d260865e0",
+    "src/main/kotlin/dev/aethereal/agui/surface/icon/DynamicIcon.kt": "20e4220b4414704085140f436ba4adc068294560409f834d567e607ed62b08d4",
+    "src/main/kotlin/dev/aethereal/agui/surface/icon/Icon.kt": "89219e4894454029873c08bf408c63ff266243be579d6448473e49f94f077fbc",
+    "src/main/kotlin/dev/aethereal/agui/surface/icon/item/ItemBuilder.kt": "f235cf30d579e8214b105c309fcf287381cdd42a9bdf013ed82e5821e53a3a88",
+    "src/main/kotlin/dev/aethereal/agui/surface/MultiGUISurface.kt": "18776f98dfc020f97307d622be41e5f5199acf02c52769c7c369f19bfebc1aa9",
+    "src/main/kotlin/dev/aethereal/agui/surface/pattern/Pattern.kt": "0ca286cd4583b2dcfe4dd7ce56934cee175b6f38ce28f5eb468b25eb894449ae",
+    "src/main/kotlin/dev/aethereal/agui/surface/SingleGUISurface.kt": "decb2f63f5a9c5154d6e641490e9c0ac816590b193edb4e486ba3ee1ca0e4cb7",
+    "src/main/resources/plugin.yml": "c92d148d7be9a0bfb967cb7b8cd89a8c57ad5e39444898104cc3221174f175cc"
+  },
+  "run_kind": "Приблизительный замер на рабочем ПК с запущенным Rust"
+}
