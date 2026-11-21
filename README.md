@@ -345,6 +345,35 @@ loreLine("§7Balance: &e%vault_eco_balance%")
 
 [Оформление и источники изображений](docs/assets/README.md)
 
+## Item properties
+
+```kotlin
+iconAt(0) {
+    type(Material.DIAMOND_SWORD)
+    enchant(Enchantment.SHARPNESS, 5)
+    attribute(Attribute.ATTACK_DAMAGE, NamespacedKey(plugin, "bonus"), 2.0,
+        slot = EquipmentSlotGroup.MAINHAND)
+    modelData(1201)
+    nbt(NamespacedKey(plugin, "item_id"), PersistentDataType.STRING, "reward_sword")
+    unbreakable()
+}
+iconAt(1) {
+    type(Material.POTION)
+    potionColor(Color.fromRGB(0xE64049))
+}
+iconAt(2) {
+    type(Material.PLAYER_HEAD)
+    headTexture(textureHash)
+    equippable(EquipmentSlot.HEAD) {
+        model = NamespacedKey(plugin, "reward_hat")
+    }
+}
+```
+
+`plugin` is your plugin instance, and `textureHash` is a Minecraft skin texture hash. `headTexture` also takes a textures.minecraft.net URL or a Base64 textures property. `modelData { ... }` accepts floats, flags, strings and colors. `itemModel(key)` sets the resource-pack item model separately. `equippable` configures the slot and equipment component, including its equipment model. Use `potionType` and `potionEffect` for potion contents.
+
+`nbt` writes typed, namespaced custom data to the item's PersistentDataContainer. Read it with the same key and type, or pass `null` to remove it. Use `meta { ... }` or `meta(PotionMeta::class.java) { ... }` for other Bukkit item properties. The same properties are available inside `dynamic` and animation `change` blocks.
+
 ## Conditional icon visibility
 
 ```kotlin

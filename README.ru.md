@@ -345,6 +345,35 @@ loreLine("§7Баланс: &e%vault_eco_balance%")
 
 [Оформление и источники изображений](docs/assets/README.md)
 
+## Свойства предметов
+
+```kotlin
+iconAt(0) {
+    type(Material.DIAMOND_SWORD)
+    enchant(Enchantment.SHARPNESS, 5)
+    attribute(Attribute.ATTACK_DAMAGE, NamespacedKey(plugin, "bonus"), 2.0,
+        slot = EquipmentSlotGroup.MAINHAND)
+    modelData(1201)
+    nbt(NamespacedKey(plugin, "item_id"), PersistentDataType.STRING, "reward_sword")
+    unbreakable()
+}
+iconAt(1) {
+    type(Material.POTION)
+    potionColor(Color.fromRGB(0xE64049))
+}
+iconAt(2) {
+    type(Material.PLAYER_HEAD)
+    headTexture(textureHash)
+    equippable(EquipmentSlot.HEAD) {
+        model = NamespacedKey(plugin, "reward_hat")
+    }
+}
+```
+
+`plugin` — экземпляр вашего плагина, `textureHash` — хеш текстуры Minecraft. `headTexture` также принимает ссылку textures.minecraft.net или Base64 из свойства textures. В `modelData { ... }` можно задавать числа, флаги, строки и цвета. `itemModel(key)` задаёт модель предмета из ресурспака. `equippable` настраивает слот и компонент экипировки, включая её модель. Для содержимого зелий есть `potionType` и `potionEffect`.
+
+`nbt` записывает типизированные данные с пространством имён в PersistentDataContainer предмета. Читайте их по тому же ключу и типу. Передайте `null`, чтобы удалить значение. Остальные свойства предмета доступны через `meta { ... }` или `meta(PotionMeta::class.java) { ... }`. Те же методы работают внутри `dynamic` и анимационного `change`.
+
 ## Видимость иконок по условию
 
 ```kotlin

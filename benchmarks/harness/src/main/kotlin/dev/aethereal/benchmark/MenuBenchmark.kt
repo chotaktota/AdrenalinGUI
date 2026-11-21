@@ -93,6 +93,7 @@ class MenuBenchmark : JavaPlugin(), Listener {
             "benchverify" -> if (sender !is Player) {
                 val player = server.getPlayerExact(args.firstOrNull() ?: "Bench0") ?: error("Тестовый игрок не найден")
                 verifyDynamic(player)
+                verifyItemProperties(this, player)
                 sender.sendMessage("Динамические иконки: проверка пройдена")
             }
             "benchphase" -> {
