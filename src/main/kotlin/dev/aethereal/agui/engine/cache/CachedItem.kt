@@ -1,8 +1,8 @@
-package dev.aethereal.agui.menu.cache
+package dev.aethereal.agui.engine.cache
 
 import dev.aethereal.agui.text.MenuText
 import dev.aethereal.agui.text.TextContext
-import dev.aethereal.agui.surface.DynamicIcon
+import dev.aethereal.agui.surface.item.DynamicIcon
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.entity.Player

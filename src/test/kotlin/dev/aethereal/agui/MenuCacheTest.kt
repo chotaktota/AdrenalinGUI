@@ -1,6 +1,6 @@
 package dev.aethereal.agui
 
-import dev.aethereal.agui.menu.cache.MenuCache
+import dev.aethereal.agui.engine.cache.MenuCache
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

@@ -1,9 +1,9 @@
-package dev.aethereal.agui.menu.session
+package dev.aethereal.agui.engine.session
 
-import dev.aethereal.agui.menu.cache.CachedAnimation
-import dev.aethereal.agui.menu.cache.CachedNode
+import dev.aethereal.agui.engine.cache.CachedAnimation
+import dev.aethereal.agui.engine.cache.CachedNode
 import dev.aethereal.agui.text.TextContext
-import dev.aethereal.agui.surface.DynamicIcon
+import dev.aethereal.agui.surface.item.DynamicIcon
 import org.bukkit.inventory.Inventory
 
 internal class AnimatedContents(private val nodes: Array<CachedNode?>) {
@@ -31,7 +31,7 @@ internal class AnimatedContents(private val nodes: Array<CachedNode?>) {
     }
     fun refresh(inventory: Inventory, context: TextContext, slots: IntArray) {
         require(slots.all { it in nodes.indices }) { "Слот за пределами меню" }
-        val rendered = java.util.IdentityHashMap<dev.aethereal.agui.menu.cache.CachedItem, org.bukkit.inventory.ItemStack>()
+        val rendered = java.util.IdentityHashMap<dev.aethereal.agui.engine.cache.CachedItem, org.bukkit.inventory.ItemStack>()
         for (slot in slots.distinct()) {
             val node = nodes[slot]
             val item = if (!visible[slot] || node == null) null else {

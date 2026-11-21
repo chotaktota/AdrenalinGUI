@@ -1,8 +1,8 @@
-package dev.aethereal.agui.surface
+package dev.aethereal.agui.surface.item
 
 import net.kyori.adventure.text.format.TextDecoration
-import dev.aethereal.agui.menu.MenuEngine
-import dev.aethereal.agui.menu.cache.CachedItem
+import dev.aethereal.agui.engine.MenuEngine
+import dev.aethereal.agui.engine.cache.CachedItem
 import dev.aethereal.agui.text.MenuText
 import org.bukkit.Material
 import org.bukkit.inventory.ItemFlag

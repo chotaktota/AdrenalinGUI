@@ -1,6 +1,8 @@
-package dev.aethereal.agui.surface
+package dev.aethereal.agui.surface.animation
 
-import dev.aethereal.agui.menu.MenuEngine
+import dev.aethereal.agui.surface.item.DynamicIcon
+import dev.aethereal.agui.surface.item.Icon
+import dev.aethereal.agui.engine.MenuEngine
 import org.bukkit.entity.Player
 
 class MenuAnimation internal constructor(private val size: Int) {

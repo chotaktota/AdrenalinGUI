@@ -1,4 +1,4 @@
-package dev.aethereal.agui.menu.session
+package dev.aethereal.agui.engine.session
 
 internal class AnimationCursor<T>(private val frames: List<Pair<Long, T>>, private val period: Long?) {
     private var index = 0

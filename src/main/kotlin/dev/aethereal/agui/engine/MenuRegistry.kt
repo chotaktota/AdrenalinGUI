@@ -1,4 +1,4 @@
-package dev.aethereal.agui.menu
+package dev.aethereal.agui.engine
 
 import dev.aethereal.agui.surface.GUISurface
 import org.bukkit.plugin.Plugin

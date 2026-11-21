@@ -1,6 +1,6 @@
 package dev.aethereal.agui.text
 
-import dev.aethereal.agui.menu.MenuEngine
+import dev.aethereal.agui.engine.MenuEngine
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 

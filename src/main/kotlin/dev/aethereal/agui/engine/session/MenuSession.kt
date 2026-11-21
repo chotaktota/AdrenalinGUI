@@ -1,8 +1,8 @@
-package dev.aethereal.agui.menu.session
+package dev.aethereal.agui.engine.session
 
-import dev.aethereal.agui.menu.MenuEngine
-import dev.aethereal.agui.menu.cache.CachedMenu
-import dev.aethereal.agui.surface.GUIClick
+import dev.aethereal.agui.engine.MenuEngine
+import dev.aethereal.agui.engine.cache.CachedMenu
+import dev.aethereal.agui.surface.item.GUIClick
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.Inventory
@@ -24,7 +24,7 @@ internal class MenuSession(
     private val contents = owner.server.createInventory(this, template.size, template.title(text))
     private val animated = template.animation?.let { template.animatedContents() }
     private val cursor = template.animation?.cursor()
-    private var animationTask: dev.aethereal.agui.menu.task.MenuScheduler.Handle? = null
+    private var animationTask: dev.aethereal.agui.engine.MenuScheduler.Handle? = null
     private var active = false
     private var queued = false
     private val lifecycle = SessionLifecycle(
@@ -87,7 +87,7 @@ internal class MenuSession(
             runFrame(next.second)
         }
     }
-    private fun runFrame(operations: List<dev.aethereal.agui.menu.cache.CachedAnimation.Operation>) {
+    private fun runFrame(operations: List<dev.aethereal.agui.engine.cache.CachedAnimation.Operation>) {
         if (!active || !owner.isEnabled || !player.isOnline || player.openInventory.topInventory !== contents) return
         try {
             val slots = checkNotNull(animated).apply(operations)

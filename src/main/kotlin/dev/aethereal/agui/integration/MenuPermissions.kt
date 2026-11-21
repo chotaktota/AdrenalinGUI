@@ -1,6 +1,6 @@
 package dev.aethereal.agui.integration
 
-import dev.aethereal.agui.menu.MenuEngine
+import dev.aethereal.agui.engine.MenuEngine
 import net.luckperms.api.LuckPerms
 import net.luckperms.api.model.user.User
 import net.luckperms.api.node.types.InheritanceNode

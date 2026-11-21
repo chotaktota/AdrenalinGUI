@@ -1,4 +1,4 @@
-package dev.aethereal.agui.menu.cache
+package dev.aethereal.agui.engine.cache
 internal class MenuCache<T : Any> {
     private var value: T? = null
 

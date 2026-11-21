@@ -1,6 +1,6 @@
 package dev.aethereal.agui.integration
 
-import dev.aethereal.agui.menu.MenuEngine
+import dev.aethereal.agui.engine.MenuEngine
 import net.milkbowl.vault.economy.Economy
 import org.bukkit.OfflinePlayer
 import org.bukkit.plugin.Plugin

@@ -1,4 +1,4 @@
-package dev.aethereal.agui.menu.session
+package dev.aethereal.agui.engine.session
 internal class SessionLifecycle(private val onOpen: () -> Unit, private val onClose: () -> Unit) {
     private var opened = false
     private var closed = false

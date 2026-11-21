@@ -1,6 +1,6 @@
 package dev.aethereal.agui.example
 
-import dev.aethereal.agui.menu.MenuEngine
+import dev.aethereal.agui.engine.MenuEngine
 import dev.aethereal.agui.surface.SingleGUISurface
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment

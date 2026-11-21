@@ -1,6 +1,6 @@
 package dev.aethereal.agui.command
 
-import dev.aethereal.agui.menu.MenuEngine
+import dev.aethereal.agui.engine.MenuEngine
 import dev.aethereal.agui.surface.GUISurface
 import dev.aethereal.agui.surface.MultiGUISurface
 import dev.aethereal.agui.surface.SingleGUISurface

@@ -299,28 +299,20 @@ commands:
 
 ```text
 AdrenalinGUI.kt
-command/
-  GuisCommand.kt
-  MenuListPage.kt
-menu/
+engine/
   MenuEngine.kt
   MenuRegistry.kt
+  MenuScheduler.kt
   cache/
   session/
-  task/
-  page/
-    registry/
 surface/
   GUISurface.kt
   SingleGUISurface.kt
   MultiGUISurface.kt
-  Pattern.kt
-  PageManager.kt
-  Icon.kt
-  ItemBuilder.kt
-  DynamicIcon.kt
-  GUIClick.kt
-  MenuAnimation.kt
+  layout/
+  item/
+  animation/
+command/
 integration/
 text/
 listener/
@@ -471,6 +463,4 @@ animation {
 
 ## Изменение пакетов
 
-Команды находятся в `dev.aethereal.agui.command`, интеграции — в `dev.aethereal.agui.integration`, обработка текста — в `dev.aethereal.agui.text`, слушатели — в `dev.aethereal.agui.listener`. Старые импорты `menu.integration` нужно обновить. Классы движка остались в menu. Основной DSL перенесён прямо в `dev.aethereal.agui.surface`: нужно обновить импорты из прежних `surface.icon`, `surface.pattern`, `surface.animation` и `menu.page.PageManager`.
-
-Весь основной DSL доступен через `import dev.aethereal.agui.surface.*`. Подпапок с одним файлом в surface больше нет.
+MenuEngine и MenuRegistry перенесены в `dev.aethereal.agui.engine`. При явном использовании типов DSL обновите импорты по дереву пакетов.

@@ -1,6 +1,6 @@
 package dev.aethereal.agui
 
-import dev.aethereal.agui.menu.page.registry.PageRegistry
+import dev.aethereal.agui.surface.layout.PageRegistry
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

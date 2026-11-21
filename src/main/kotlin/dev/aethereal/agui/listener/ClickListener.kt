@@ -1,7 +1,7 @@
 package dev.aethereal.agui.listener
 
-import dev.aethereal.agui.menu.MenuEngine
-import dev.aethereal.agui.menu.session.MenuSession
+import dev.aethereal.agui.engine.MenuEngine
+import dev.aethereal.agui.engine.session.MenuSession
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener

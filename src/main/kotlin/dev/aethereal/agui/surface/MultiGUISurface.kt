@@ -1,10 +1,11 @@
 package dev.aethereal.agui.surface
 
+import dev.aethereal.agui.surface.layout.PageManager
 import dev.aethereal.agui.AdrenalinGUI
-import dev.aethereal.agui.menu.cache.CachedMenu
-import dev.aethereal.agui.menu.cache.MenuCache
-import dev.aethereal.agui.menu.page.registry.PageRegistry
-import dev.aethereal.agui.menu.MenuEngine
+import dev.aethereal.agui.engine.cache.CachedMenu
+import dev.aethereal.agui.engine.cache.MenuCache
+import dev.aethereal.agui.surface.layout.PageRegistry
+import dev.aethereal.agui.engine.MenuEngine
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin

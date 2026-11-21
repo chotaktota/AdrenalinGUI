@@ -1,6 +1,6 @@
 package dev.aethereal.agui
 
-import dev.aethereal.agui.menu.MenuRegistry
+import dev.aethereal.agui.engine.MenuRegistry
 import dev.aethereal.agui.surface.GUISurface
 import org.bukkit.Bukkit
 import org.bukkit.Server

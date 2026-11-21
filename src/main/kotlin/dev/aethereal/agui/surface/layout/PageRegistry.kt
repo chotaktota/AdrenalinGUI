@@ -1,6 +1,6 @@
-package dev.aethereal.agui.menu.page.registry
+package dev.aethereal.agui.surface.layout
 
-import dev.aethereal.agui.menu.cache.MenuCache
+import dev.aethereal.agui.engine.cache.MenuCache
 
 internal class PageRegistry<T : Any> {
     private class Entry<T : Any>(val build: () -> T) {

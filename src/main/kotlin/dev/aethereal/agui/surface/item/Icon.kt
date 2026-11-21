@@ -1,6 +1,6 @@
-package dev.aethereal.agui.surface
+package dev.aethereal.agui.surface.item
 
-import dev.aethereal.agui.menu.MenuEngine
+import dev.aethereal.agui.engine.MenuEngine
 
 class Icon : ItemBuilder() {
     internal var update: (DynamicIcon.(org.bukkit.entity.Player) -> Unit)? = null

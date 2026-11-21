@@ -1,6 +1,6 @@
 package dev.aethereal.agui
 
-import dev.aethereal.agui.menu.session.AnimationCursor
+import dev.aethereal.agui.engine.session.AnimationCursor
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

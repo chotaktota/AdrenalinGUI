@@ -1,8 +1,8 @@
-package dev.aethereal.agui.surface
+package dev.aethereal.agui.surface.item
 
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
-import dev.aethereal.agui.menu.MenuEngine
+import dev.aethereal.agui.engine.MenuEngine
 
 class GUIClick internal constructor(
     val player: Player,
@@ -16,7 +16,7 @@ class GUIClick internal constructor(
     val isShiftClick: Boolean get() = click.isShiftClick
     fun refresh(vararg slots: Int) {
         MenuEngine.requireSync()
-        val session = player.openInventory.topInventory.holder as? dev.aethereal.agui.menu.session.MenuSession ?: return
+        val session = player.openInventory.topInventory.holder as? dev.aethereal.agui.engine.session.MenuSession ?: return
         session.refresh(if (slots.isEmpty()) IntArray(session.inventory.size) { it } else slots)
     }
     fun close() { MenuEngine.requireSync(); player.closeInventory() }

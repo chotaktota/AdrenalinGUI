@@ -1,6 +1,6 @@
 package dev.aethereal.agui
 
-import dev.aethereal.agui.menu.MenuEngine
+import dev.aethereal.agui.engine.MenuEngine
 import dev.aethereal.agui.listener.ClickListener
 import org.bukkit.plugin.java.JavaPlugin
 

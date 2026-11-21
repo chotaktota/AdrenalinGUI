@@ -1,9 +1,9 @@
-package dev.aethereal.agui.menu.cache
+package dev.aethereal.agui.engine.cache
 
 import dev.aethereal.agui.text.TextContext
-import dev.aethereal.agui.surface.Icon
-import dev.aethereal.agui.surface.GUIClick
-import dev.aethereal.agui.surface.Pattern
+import dev.aethereal.agui.surface.item.Icon
+import dev.aethereal.agui.surface.item.GUIClick
+import dev.aethereal.agui.surface.layout.Pattern
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import java.util.IdentityHashMap
@@ -16,7 +16,7 @@ internal class CachedMenu(pattern: Pattern) {
 
     private val nodes = if (pattern.animation == null) null else arrayOfNulls<CachedNode>(size)
     val animation: CachedAnimation?
-    fun animatedContents() = dev.aethereal.agui.menu.session.AnimatedContents(checkNotNull(nodes).copyOf())
+    fun animatedContents() = dev.aethereal.agui.engine.session.AnimatedContents(checkNotNull(nodes).copyOf())
     init {
         val built = IdentityHashMap<Icon, CachedItem>()
         fun compile(icon: Icon): CachedNode = CachedNode(built.getOrPut(icon) { icon.compile() }, icon.handler)

@@ -1,6 +1,8 @@
-package dev.aethereal.agui.surface
+package dev.aethereal.agui.surface.layout
 
-import dev.aethereal.agui.menu.MenuEngine
+import dev.aethereal.agui.surface.animation.MenuAnimation
+import dev.aethereal.agui.surface.item.Icon
+import dev.aethereal.agui.engine.MenuEngine
 import dev.aethereal.agui.text.MenuText
 
 class Pattern internal constructor(layout: String, rows: Int) {

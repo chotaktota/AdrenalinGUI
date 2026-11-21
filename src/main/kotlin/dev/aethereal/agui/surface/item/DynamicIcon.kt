@@ -1,6 +1,6 @@
-package dev.aethereal.agui.surface
+package dev.aethereal.agui.surface.item
 
-import dev.aethereal.agui.menu.MenuEngine
+import dev.aethereal.agui.engine.MenuEngine
 import dev.aethereal.agui.text.MenuText
 import dev.aethereal.agui.text.TextContext
 import net.kyori.adventure.text.format.TextDecoration
