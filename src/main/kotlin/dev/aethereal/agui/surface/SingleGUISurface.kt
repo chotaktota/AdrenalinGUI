@@ -3,7 +3,6 @@ package dev.aethereal.agui.surface
 import dev.aethereal.agui.AdrenalinGUI
 import dev.aethereal.agui.menu.cache.CachedMenu
 import dev.aethereal.agui.menu.cache.MenuCache
-import dev.aethereal.agui.surface.pattern.Pattern
 import dev.aethereal.agui.menu.MenuEngine
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin

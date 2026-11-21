@@ -2,7 +2,7 @@ package dev.aethereal.agui.menu.cache
 
 import dev.aethereal.agui.text.MenuText
 import dev.aethereal.agui.text.TextContext
-import dev.aethereal.agui.surface.icon.DynamicIcon
+import dev.aethereal.agui.surface.DynamicIcon
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.entity.Player

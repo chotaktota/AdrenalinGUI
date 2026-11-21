@@ -1,4 +1,4 @@
-package dev.aethereal.agui.surface.icon.action
+package dev.aethereal.agui.surface
 
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType

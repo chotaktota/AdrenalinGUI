@@ -2,7 +2,7 @@ package dev.aethereal.agui.menu.session
 
 import dev.aethereal.agui.menu.MenuEngine
 import dev.aethereal.agui.menu.cache.CachedMenu
-import dev.aethereal.agui.surface.icon.action.GUIClick
+import dev.aethereal.agui.surface.GUIClick
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.inventory.Inventory

@@ -1,4 +1,4 @@
-package dev.aethereal.agui.surface.icon
+package dev.aethereal.agui.surface
 
 import dev.aethereal.agui.menu.MenuEngine
 import dev.aethereal.agui.text.MenuText

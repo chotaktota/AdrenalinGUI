@@ -1,7 +1,5 @@
-package dev.aethereal.agui.surface.icon
+package dev.aethereal.agui.surface
 
-import dev.aethereal.agui.surface.icon.action.GUIClick
-import dev.aethereal.agui.surface.icon.item.ItemBuilder
 import dev.aethereal.agui.menu.MenuEngine
 
 class Icon : ItemBuilder() {

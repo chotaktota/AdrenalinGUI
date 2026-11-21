@@ -3,7 +3,7 @@ package dev.aethereal.agui.menu.session
 import dev.aethereal.agui.menu.cache.CachedAnimation
 import dev.aethereal.agui.menu.cache.CachedNode
 import dev.aethereal.agui.text.TextContext
-import dev.aethereal.agui.surface.icon.DynamicIcon
+import dev.aethereal.agui.surface.DynamicIcon
 import org.bukkit.inventory.Inventory
 
 internal class AnimatedContents(private val nodes: Array<CachedNode?>) {

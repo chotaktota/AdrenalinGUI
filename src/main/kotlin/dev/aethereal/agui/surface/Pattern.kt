@@ -1,6 +1,5 @@
-package dev.aethereal.agui.surface.pattern
+package dev.aethereal.agui.surface
 
-import dev.aethereal.agui.surface.icon.Icon
 import dev.aethereal.agui.menu.MenuEngine
 import dev.aethereal.agui.text.MenuText
 
@@ -8,11 +7,11 @@ class Pattern internal constructor(layout: String, rows: Int) {
     private val positions: Map<Char, List<Int>>
     internal val size = rows * 9
     internal var caption = MenuText("")
-    internal var animation: dev.aethereal.agui.surface.animation.MenuAnimation? = null
-    fun animation(configure: dev.aethereal.agui.surface.animation.MenuAnimation.() -> Unit) {
+    internal var animation: MenuAnimation? = null
+    fun animation(configure: MenuAnimation.() -> Unit) {
         MenuEngine.requireSync()
         check(animation == null) { "Для шаблона можно задать только одну анимацию" }
-        animation = dev.aethereal.agui.surface.animation.MenuAnimation(size).apply(configure)
+        animation = MenuAnimation(size).apply(configure)
     }
     internal val icons = linkedMapOf<Int, Icon>()
     init {

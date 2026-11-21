@@ -1,4 +1,4 @@
-package dev.aethereal.agui.surface.icon.item
+package dev.aethereal.agui.surface
 
 import net.kyori.adventure.text.format.TextDecoration
 import dev.aethereal.agui.menu.MenuEngine
@@ -27,7 +27,7 @@ open class ItemBuilder {
     }
     fun glow(value: Boolean = true) { MenuEngine.requireSync(); glowing = value }
     fun allFlags() { MenuEngine.requireSync(); hideFlags = true }
-    internal fun compile(): CachedItem = CachedItem(build(), displayName, lines.toList(), (this as? dev.aethereal.agui.surface.icon.Icon)?.update)
+    internal fun compile(): CachedItem = CachedItem(build(), displayName, lines.toList(), (this as? Icon)?.update)
 
     private fun build(): ItemStack {
         MenuEngine.requireSync()

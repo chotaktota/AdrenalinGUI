@@ -314,9 +314,13 @@ surface/
   GUISurface.kt
   SingleGUISurface.kt
   MultiGUISurface.kt
-  animation/
-  icon/
-  pattern/
+  Pattern.kt
+  PageManager.kt
+  Icon.kt
+  ItemBuilder.kt
+  DynamicIcon.kt
+  GUIClick.kt
+  MenuAnimation.kt
 integration/
 text/
 listener/
@@ -463,4 +467,6 @@ Multi-page menus also show their initial page. The command opens no inventory, i
 
 ## Package changes
 
-Commands now live in `dev.aethereal.agui.command`, integrations in `dev.aethereal.agui.integration`, text processing in `dev.aethereal.agui.text`, and listeners in `dev.aethereal.agui.listener`. Update old `menu.integration` imports. The main `menu` and `surface` APIs retain their packages. The public build has no AethLibrary dependency.
+Commands now live in `dev.aethereal.agui.command`, integrations in `dev.aethereal.agui.integration`, text processing in `dev.aethereal.agui.text`, and listeners in `dev.aethereal.agui.listener`. Update old `menu.integration` imports. The main menu engine APIs retain their packages. The surface DSL classes now live directly in `dev.aethereal.agui.surface`; update imports from the former `surface.icon`, `surface.pattern`, `surface.animation` and `menu.page.PageManager` packages. The public build has no AethLibrary dependency.
+
+The complete surface DSL is available through `import dev.aethereal.agui.surface.*`. No one-file subpackages remain under surface.

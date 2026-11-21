@@ -314,9 +314,13 @@ surface/
   GUISurface.kt
   SingleGUISurface.kt
   MultiGUISurface.kt
-  animation/
-  icon/
-  pattern/
+  Pattern.kt
+  PageManager.kt
+  Icon.kt
+  ItemBuilder.kt
+  DynamicIcon.kt
+  GUIClick.kt
+  MenuAnimation.kt
 integration/
 text/
 listener/
@@ -467,4 +471,6 @@ animation {
 
 ## Изменение пакетов
 
-Команды находятся в `dev.aethereal.agui.command`, интеграции — в `dev.aethereal.agui.integration`, обработка текста — в `dev.aethereal.agui.text`, слушатели — в `dev.aethereal.agui.listener`. Старые импорты `menu.integration` нужно обновить. Основные API `menu` и `surface` остались на месте.
+Команды находятся в `dev.aethereal.agui.command`, интеграции — в `dev.aethereal.agui.integration`, обработка текста — в `dev.aethereal.agui.text`, слушатели — в `dev.aethereal.agui.listener`. Старые импорты `menu.integration` нужно обновить. Классы движка остались в menu. Основной DSL перенесён прямо в `dev.aethereal.agui.surface`: нужно обновить импорты из прежних `surface.icon`, `surface.pattern`, `surface.animation` и `menu.page.PageManager`.
+
+Весь основной DSL доступен через `import dev.aethereal.agui.surface.*`. Подпапок с одним файлом в surface больше нет.
