@@ -1,7 +1,6 @@
 package dev.aethereal.agui.engine.session
 
 import dev.aethereal.agui.engine.MenuEngine
-import dev.aethereal.agui.engine.cache.CachedMenu
 import dev.aethereal.agui.engine.cache.CachedNode
 import dev.aethereal.agui.surface.item.GUIClick
 import org.bukkit.entity.Player
@@ -13,14 +12,20 @@ import java.util.logging.Level
 
 internal class MenuSession(
     val engine: MenuEngine,
-    val owner: Plugin,
     val player: Player,
-    private val template: CachedMenu,
-    onOpen: () -> Unit,
-    onClose: () -> Unit,
-    private val page: String? = null,
-    private val onNavigate: ((String) -> Unit)? = null
+    val destination: MenuDestination,
+    history: List<MenuDestination>
 ) : InventoryHolder {
+    val owner: Plugin get() = destination.surface.plugin
+    private val template get() = destination.template
+    var history = history
+        private set
+    val isActive: Boolean get() = active
+
+    fun forget(plugin: Plugin) {
+        history = history.filterNot { it.surface.plugin === plugin }
+    }
+
     private val text = engine.text.forPlayer(player)
     private val contents = owner.server.createInventory(this, template.size, template.title(text))
     private val animated = template.animation?.let { template.animatedContents() }
@@ -29,7 +34,7 @@ internal class MenuSession(
     private var active = false
     private var queued = false
     private val lifecycle = SessionLifecycle(
-        { notify("onOpen", onOpen) }, { notify("onClose", onClose) }
+        { notify("onOpen", destination.onOpen) }, { notify("onClose", destination.onClose) }
     )
     init {
         template.populate(contents, text)
@@ -65,13 +70,13 @@ internal class MenuSession(
             if (active && owner.isEnabled && player.isOnline && player.openInventory.topInventory === contents) {
                 if (animated?.revision(slot) != revision || !canClick(slot, node)) return@later
                 try {
-                    val navigate = onNavigate?.let { action ->
+                    val navigate = destination.onNavigate?.let { action ->
                         { target: String ->
                             if (active && owner.isEnabled && player.isOnline &&
                                 player.openInventory.topInventory === contents) action(target)
                         }
                     }
-                    handler.invoke(GUIClick(player, slot, click, page, navigate))
+                    handler.invoke(GUIClick(player, slot, click, destination.page, navigate, this))
                 }
                 catch (exception: Exception) {
                     owner.logger.log(Level.SEVERE, "Ошибка обработки клика в слоте $slot", exception)

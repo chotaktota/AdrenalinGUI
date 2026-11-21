@@ -347,6 +347,49 @@ loreLine("§7Баланс: &e%vault_eco_balance%")
 
 [Оформление и источники изображений](docs/assets/README.md)
 
+## Шаблоны иконок, ввод в чат и «Назад»
+
+```kotlin
+data class WarpArgs(val material: Material, val name: String)
+
+with(newPattern("XYIB.....")) {
+    template("warpTemplate", WarpArgs::class.java) { args ->
+        type(args.material)
+        name(args.name)
+        loreLine("<gray>ЛКМ — выбрать")
+        allFlags()
+    }
+
+    val warp = template("warpTemplate", WarpArgs::class.java)
+    iconAt(pos('X'), warp, WarpArgs(Material.ENDER_PEARL, "<green>Спавн"))
+    iconAt(pos('Y'), warp, WarpArgs(Material.COMPASS, "<gold>Рынок"))
+
+    iconAt(pos('I')) {
+        type(Material.PAPER)
+        onClick {
+            inputChat("Введите кол-во монет в чат:", Int::class.java) {
+                validate { it > 0 }
+                onSuccess { amount -> sendMessage("Введено: $amount") }
+                onFailure { reason -> sendMessage("Ошибка ввода: $reason") }
+            }
+        }
+    }
+
+    iconAt(pos('B')) {
+        type(Material.ARROW)
+        name("<yellow>Назад")
+        visibleIf(engine::hasPreviousMenu)
+        back()
+    }
+}
+```
+
+Именованные шаблоны действуют в текущем паттерне. Типизированный шаблон получает объект параметров. Если у иконки есть собственный блок, он выполняется после шаблона и может переопределить его настройки.
+
+Есть и сокращённая форма `inputChat<Int>("Введите сумму:") { ... }`. Ввод закрывает окно и перехватывает сообщение игрока до отправки в общий чат. Обработчики выполняются на основном потоке. Поддерживаются `String`, `Int`, `Long`, `Float`, `Double` и `Boolean`. Время ожидания по умолчанию — 1200 тиков. Для отмены введите `отмена` или `cancel`. В `onFailure` приходят `INVALID_INPUT`, `CANCELLED` или `TIMEOUT`. Неверный ответ вызывает обработчик ошибки и завершает ввод. Выход игрока, открытие другого инвентаря и отключение плагина-владельца прекращают ожидание.
+
+В блоке иконки `back()` назначает готовое действие возврата. Внутри `onClick` метод `hasPreviousMenu()` проверяет наличие предыдущего меню, а `back()` возвращает к нему. У движка также есть `hasPreviousMenu(player)` и `back(player)`. История хранит до 32 переходов между меню и страницами. Закрытие окна завершает эту историю.
+
 ## Свойства предметов
 
 ```kotlin

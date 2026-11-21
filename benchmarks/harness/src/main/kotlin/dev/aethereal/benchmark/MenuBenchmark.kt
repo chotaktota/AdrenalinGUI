@@ -90,6 +90,10 @@ class MenuBenchmark : JavaPlugin(), Listener {
                 sender.sendMessage(animationStatus)
             }
             "benchanimationstatus" -> if (sender !is Player) sender.sendMessage(animationStatus)
+            "benchverifyinteraction" -> if (sender !is Player) {
+                val viewer = checkNotNull(server.getPlayerExact("Bench0"))
+                verifyInteraction(this, viewer)
+            }
             "benchverify" -> if (sender !is Player) {
                 val player = server.getPlayerExact(args.firstOrNull() ?: "Bench0") ?: error("Тестовый игрок не найден")
                 verifyDynamic(player)

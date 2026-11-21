@@ -43,7 +43,7 @@ async function main() {
   const started = new Date().toISOString(), checks={windows:0,items:0}
   const rcon = new Rcon(); await rcon.connect()
   const bots=[]
-  for (let i=0;i<((process.env.BENCH_ANIMATION_ONLY === '1' || process.env.BENCH_GUIS_ONLY === '1') ? 2 : 8);i++) {
+  for (let i=0;i<((process.env.BENCH_ANIMATION_ONLY === '1' || process.env.BENCH_GUIS_ONLY === '1' || process.env.BENCH_INTERACTION_ONLY === '1') ? 2 : 8);i++) {
     const bot=mineflayer.createBot({host:'127.0.0.1',port:25579,username:'Bench'+i,auth:'offline',version:'1.21.11',hideErrors:false})
     bot.on('kicked',reason=>{ console.error('Kicked',bot.username,reason); process.exitCode=1 })
     bot.on('error',error=>console.error('Bot error',bot.username,error.message))
@@ -55,6 +55,54 @@ async function main() {
   await rcon.send('gamerule minecraft:advance_time false')
   await rcon.send('gamerule minecraft:spawn_mobs false')
   await sleep(3000)
+  if (process.env.BENCH_INTERACTION_ONLY === '1') {
+    const [bot, observer] = bots
+    const publicChat = []
+    observer.on('messagestr', message => publicChat.push(message))
+    function messageFrom(player, text) {
+      return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+          player.off('messagestr', listener)
+          reject(new Error('Message timeout: ' + text))
+        }, 10000)
+        function listener(message) {
+          if (!message.includes(text)) return
+          clearTimeout(timer)
+          player.off('messagestr', listener)
+          resolve()
+        }
+        player.on('messagestr', listener)
+      })
+    }
+    async function openPrompt() {
+      const prompt = messageFrom(bot, 'Тест: введите сумму')
+      await rcon.send('benchverifyinteraction')
+      await prompt
+      if (bot.currentWindow) throw new Error('Menu stayed open during input')
+    }
+    try {
+      await openPrompt()
+      const invalid = messageFrom(bot, 'Тест: ошибка INVALID_INPUT')
+      bot.chat('invalid-amount')
+      await invalid
+      const publicMessage = messageFrom(observer, 'normal-chat-after-failure')
+      bot.chat('normal-chat-after-failure')
+      await publicMessage
+      await openPrompt()
+      const success = messageFrom(bot, 'Тест: получено 27')
+      bot.chat('27')
+      await success
+      await sleep(500)
+      if (publicChat.some(text => text.includes('invalid-amount') || text.includes('Bench0> 27'))) {
+        throw new Error('Captured input reached public chat')
+      }
+      console.log('History, typed icon templates and one-shot chat input verified')
+    } finally {
+      bots.forEach(bot => bot.quit())
+      rcon.socket.end()
+    }
+    return
+  }
   if (process.env.BENCH_GUIS_ONLY === '1') {
     const bot=bots[0], messages=[]
     bot.on('messagestr', text=>messages.push(text))

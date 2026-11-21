@@ -347,6 +347,49 @@ loreLine("§7Balance: &e%vault_eco_balance%")
 
 [Оформление и источники изображений](docs/assets/README.md)
 
+## Icon templates, chat input and back
+
+```kotlin
+data class WarpArgs(val material: Material, val name: String)
+
+with(newPattern("XYIB.....")) {
+    template("warpTemplate", WarpArgs::class.java) { args ->
+        type(args.material)
+        name(args.name)
+        loreLine("<gray>ЛКМ — выбрать")
+        allFlags()
+    }
+
+    val warp = template("warpTemplate", WarpArgs::class.java)
+    iconAt(pos('X'), warp, WarpArgs(Material.ENDER_PEARL, "<green>Спавн"))
+    iconAt(pos('Y'), warp, WarpArgs(Material.COMPASS, "<gold>Рынок"))
+
+    iconAt(pos('I')) {
+        type(Material.PAPER)
+        onClick {
+            inputChat("Введите кол-во монет в чат:", Int::class.java) {
+                validate { it > 0 }
+                onSuccess { amount -> sendMessage("Введено: $amount") }
+                onFailure { reason -> sendMessage("Ошибка ввода: $reason") }
+            }
+        }
+    }
+
+    iconAt(pos('B')) {
+        type(Material.ARROW)
+        name("<yellow>Назад")
+        visibleIf(engine::hasPreviousMenu)
+        back()
+    }
+}
+```
+
+Named templates belong to the current pattern. A typed template receives its argument object. An optional icon block runs after the template and can override its defaults.
+
+`inputChat<Int>("Enter the amount:") { ... }` is also supported. Input closes the window and consumes the next chat message privately. Callbacks run on the server thread. Types include `String`, `Int`, `Long`, `Float`, `Double` and `Boolean`. The wait defaults to 1200 ticks. Enter `cancel` or `отмена` to cancel. Failure reasons are `INVALID_INPUT`, `CANCELLED` and `TIMEOUT`. An invalid response calls the failure handler and ends the prompt. Disconnecting, opening another inventory or disabling the owner cancels the prompt.
+
+`back()` inside an icon registers the default back action. Inside `onClick`, call `hasPreviousMenu()` to check for an earlier menu and `back()` to navigate there. The engine also exposes `hasPreviousMenu(player)` and `back(player)`. History records up to 32 pages and menus while navigating; closing the window ends that history.
+
 ## Item properties
 
 ```kotlin

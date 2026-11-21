@@ -21,5 +21,7 @@ class Icon : ItemBuilder() {
     }
 
     internal var handler: (GUIClick.() -> Unit)? = null
+    fun back() = onClick { back() }
+
     fun onClick(action: GUIClick.() -> Unit) { MenuEngine.requireSync(); handler = action }
 }

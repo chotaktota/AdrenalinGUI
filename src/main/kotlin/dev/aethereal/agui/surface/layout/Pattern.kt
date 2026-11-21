@@ -5,6 +5,11 @@ import dev.aethereal.agui.surface.item.Icon
 import dev.aethereal.agui.engine.MenuEngine
 import dev.aethereal.agui.text.MenuText
 
+class IconTemplate<T : Any> internal constructor(
+    internal val type: Class<T>,
+    internal val configure: Icon.(T) -> Unit
+)
+
 class Pattern internal constructor(layout: String, rows: Int) {
     private val positions: Map<Char, List<Int>>
     internal val size = rows * 9
@@ -30,6 +35,45 @@ class Pattern internal constructor(layout: String, rows: Int) {
         caption = MenuText(value)
     }
     fun title(value: () -> String) = title(value())
+    private val templates = mutableMapOf<String, IconTemplate<*>>()
+
+    fun template(name: String, configure: Icon.() -> Unit): IconTemplate<Unit> =
+        template(name, Unit::class.java) { configure() }
+
+    fun <T : Any> template(name: String, type: Class<T>, configure: Icon.(T) -> Unit): IconTemplate<T> {
+        MenuEngine.requireSync()
+        require(name.isNotBlank()) { "Имя шаблона не может быть пустым" }
+        require(name !in templates) { "Шаблон иконки уже объявлен: $name" }
+        return IconTemplate(type.kotlin.javaObjectType, configure).also { templates[name] = it }
+    }
+
+    fun template(name: String): IconTemplate<Unit> = template(name, Unit::class.java)
+
+    fun <T : Any> template(name: String, type: Class<T>): IconTemplate<T> {
+        MenuEngine.requireSync()
+        val template = requireNotNull(templates[name]) { "Шаблон иконки не найден: $name" }
+        require(template.type == type.kotlin.javaObjectType) {
+            "Шаблон $name ожидает параметры типа ${template.type.simpleName}"
+        }
+        @Suppress("UNCHECKED_CAST")
+        return template as IconTemplate<T>
+    }
+
+    fun iconAt(slots: Iterable<Int>, template: IconTemplate<Unit>, configure: Icon.() -> Unit = {}) =
+        iconAt(slots, template, Unit, configure)
+
+    fun iconAt(slot: Int, template: IconTemplate<Unit>, configure: Icon.() -> Unit = {}) =
+        iconAt(listOf(slot), template, configure)
+
+    fun <T : Any> iconAt(slots: Iterable<Int>, template: IconTemplate<T>, args: T, configure: Icon.() -> Unit = {}) =
+        iconAt(slots) {
+            template.configure(this, args)
+            configure()
+        }
+
+    fun <T : Any> iconAt(slot: Int, template: IconTemplate<T>, args: T, configure: Icon.() -> Unit = {}) =
+        iconAt(listOf(slot), template, args, configure)
+
     fun iconAt(slots: Iterable<Int>, configure: Icon.() -> Unit) {
         MenuEngine.requireSync()
         val targets = slots.toList()
