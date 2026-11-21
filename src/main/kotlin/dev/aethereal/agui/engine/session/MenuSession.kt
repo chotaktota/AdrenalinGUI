@@ -2,6 +2,7 @@ package dev.aethereal.agui.engine.session
 
 import dev.aethereal.agui.engine.MenuEngine
 import dev.aethereal.agui.engine.cache.CachedMenu
+import dev.aethereal.agui.engine.cache.CachedNode
 import dev.aethereal.agui.surface.item.GUIClick
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
@@ -53,14 +54,16 @@ internal class MenuSession(
         if (animated == null) template.refresh(contents, context, slots) else animated.refresh(contents, context, slots)
     }
     fun dispatch(slot: Int, click: ClickType) {
-        val handler = (if (animated == null) template.handler(slot) else animated.handler(slot)) ?: return
-        val revision = animated?.revision(slot)
         if (queued || !active || !owner.isEnabled) return
+        val node = (if (animated == null) template.nodeAt(slot) else animated.nodeAt(slot)) ?: return
+        val handler = node.handler ?: return
+        if (!canClick(slot, node)) return
+        val revision = animated?.revision(slot)
         queued = true
         engine.tasks.later(1L) {
             queued = false
             if (active && owner.isEnabled && player.isOnline && player.openInventory.topInventory === contents) {
-                if (animated?.revision(slot) != revision) return@later
+                if (animated?.revision(slot) != revision || !canClick(slot, node)) return@later
                 try {
                     val navigate = onNavigate?.let { action ->
                         { target: String ->
@@ -76,6 +79,16 @@ internal class MenuSession(
             }
         }
     }
+    private fun canClick(slot: Int, node: CachedNode): Boolean {
+        if (contents.getItem(slot)?.isEmpty != false) return false
+        return try {
+            node.isVisible(player)
+        } catch (exception: Exception) {
+            owner.logger.log(Level.SEVERE, "Ошибка проверки видимости иконки в слоте $slot", exception)
+            false
+        }
+    }
+
     private fun nextFrame() {
         val next = cursor?.next() ?: return
         if (next.first == 0L) {

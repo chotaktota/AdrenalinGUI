@@ -345,6 +345,19 @@ loreLine("§7Balance: &e%vault_eco_balance%")
 
 [Оформление и источники изображений](docs/assets/README.md)
 
+## Conditional icon visibility
+
+```kotlin
+iconAt(pos('V')) {
+    type(Material.DIAMOND)
+    name("<gold>VIP")
+    requirePermission("myplugin.vip")
+    onClick { close() }
+}
+```
+
+Use `visibleIf { player -> ... }` for custom conditions. When an icon declares several conditions, all must pass. Visibility is evaluated for each viewer when opening or refreshing the menu and when an animation updates the slot. Call `engine.refresh(player)` to update an already open menu after a permission change. Clicks require a displayed item and pass the same check again before the handler runs.
+
 ## Dynamic icons and refresh
 
 ```kotlin

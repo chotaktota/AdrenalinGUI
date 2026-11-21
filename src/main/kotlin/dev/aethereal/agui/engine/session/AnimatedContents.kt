@@ -5,13 +5,15 @@ import dev.aethereal.agui.engine.cache.CachedNode
 import dev.aethereal.agui.text.TextContext
 import dev.aethereal.agui.surface.item.DynamicIcon
 import org.bukkit.inventory.Inventory
+import org.bukkit.inventory.ItemStack
+import java.util.IdentityHashMap
 
 internal class AnimatedContents(private val nodes: Array<CachedNode?>) {
     private val visible = BooleanArray(nodes.size) { true }
     private val versions = LongArray(nodes.size)
     private val changes = arrayOfNulls<LinkedHashSet<CachedAnimation.Operation.Change>>(nodes.size)
     fun revision(slot: Int) = versions[slot]
-    fun handler(slot: Int) = if (visible[slot]) nodes[slot]?.handler else null
+    fun nodeAt(slot: Int): CachedNode? = if (visible.getOrNull(slot) == true) nodes[slot] else null
     fun apply(operations: List<CachedAnimation.Operation>): IntArray {
         val dirty = linkedSetOf<Int>()
         for (operation in operations) for (slot in operation.slots) {
@@ -31,11 +33,10 @@ internal class AnimatedContents(private val nodes: Array<CachedNode?>) {
     }
     fun refresh(inventory: Inventory, context: TextContext, slots: IntArray) {
         require(slots.all { it in nodes.indices }) { "Слот за пределами меню" }
-        val rendered = java.util.IdentityHashMap<dev.aethereal.agui.engine.cache.CachedItem, org.bukkit.inventory.ItemStack>()
+        val rendered = IdentityHashMap<CachedNode, ItemStack?>()
         for (slot in slots.distinct()) {
-            val node = nodes[slot]
-            val item = if (!visible[slot] || node == null) null else {
-                var copy = rendered.getOrPut(node.item) { node.item.render(context) }.clone()
+            val item = nodeAt(slot)?.render(context, rendered)?.let { renderedItem ->
+                var copy = renderedItem.clone()
                 changes[slot]?.let { edits ->
                     val icon = DynamicIcon(copy, context)
                     edits.forEach { it.configure.invoke(icon, checkNotNull(context.player)) }

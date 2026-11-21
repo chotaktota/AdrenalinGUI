@@ -121,9 +121,73 @@ internal class AnimationVerification(private val plugin: JavaPlugin, private val
             check(obsolete == 0)
             check(viewer.openInventory.topInventory.getItem(0)?.type == Material.EMERALD)
             viewer.closeInventory()
-            status("Проверка анимации пройдена")
+            verifyVisibility()
         }
     }
+    private fun verifyVisibility() {
+        val permission = "menubenchmark.visibility"
+        var clicks = 0
+        val menu = object : SingleGUISurface(1, plugin) {
+            override fun onUpdateNodes() {
+                with(newPattern("XX.......")) {
+                    iconAt(pos('X')) {
+                        type(Material.PAPER)
+                        requirePermission(permission)
+                        visibleIf { it.uniqueId == viewer.uniqueId }
+                        onClick { clicks++ }
+                    }
+                    animation {
+                        at(1) { show(0) }
+                        at(2) {
+                            set(1) {
+                                type(Material.EMERALD)
+                                requirePermission(permission)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        val first = viewer.addAttachment(plugin, permission, true)
+        val second = other.addAttachment(plugin, permission, true)
+        fun cleanup() {
+            viewer.removeAttachment(first)
+            other.removeAttachment(second)
+            viewer.closeInventory()
+            other.closeInventory()
+        }
+        try {
+            menu.open(viewer)
+            menu.open(other)
+            val inventory = viewer.openInventory.topInventory
+            check(inventory.getItem(0)?.type == Material.PAPER)
+            check(other.openInventory.topInventory.getItem(0) == null)
+            plugin.server.pluginManager.callEvent(org.bukkit.event.inventory.InventoryClickEvent(
+                viewer.openInventory, org.bukkit.event.inventory.InventoryType.SlotType.CONTAINER, 0,
+                org.bukkit.event.inventory.ClickType.LEFT, org.bukkit.event.inventory.InventoryAction.PICKUP_ALL))
+            first.setPermission(permission, false)
+            later(4) {
+                try {
+                    check(clicks == 0)
+                    check(inventory.getItem(0) == null && inventory.getItem(1) == null)
+                    first.setPermission(permission, true)
+                    engine.refresh(viewer)
+                    check(inventory.getItem(0)?.type == Material.PAPER)
+                    check(inventory.getItem(1)?.type == Material.EMERALD)
+                    first.setPermission(permission, false)
+                    engine.refresh(viewer, 1)
+                    check(inventory.getItem(0)?.type == Material.PAPER && inventory.getItem(1) == null)
+                } finally {
+                    cleanup()
+                }
+                status("Проверка анимации и видимости пройдена")
+            }
+        } catch (exception: Exception) {
+            cleanup()
+            throw exception
+        }
+    }
+
     private fun later(delay: Long, action: () -> Unit) {
         plugin.server.scheduler.runTaskLater(plugin, Runnable {
             if (!failed) try { action() } catch (exception: Exception) {
