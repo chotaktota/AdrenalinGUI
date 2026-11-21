@@ -350,19 +350,16 @@ loreLine("§7Balance: &e%vault_eco_balance%")
 ## Icon templates, chat input and back
 
 ```kotlin
-data class WarpArgs(val material: Material, val name: String)
-
 with(newPattern("XYIB.....")) {
-    template("warpTemplate", WarpArgs::class.java) { args ->
-        type(args.material)
-        name(args.name)
+    val warp = template("warpTemplate", Material::class.java, String::class.java) { material, label ->
+        type(material)
+        name(label)
         loreLine("<gray>ЛКМ — выбрать")
         allFlags()
     }
 
-    val warp = template("warpTemplate", WarpArgs::class.java)
-    iconAt(pos('X'), warp, WarpArgs(Material.ENDER_PEARL, "<green>Спавн"))
-    iconAt(pos('Y'), warp, WarpArgs(Material.COMPASS, "<gold>Рынок"))
+    iconAt(pos('X'), warp, Material.ENDER_PEARL, "<green>Спавн")
+    iconAt(pos('Y'), warp, Material.COMPASS, "<gold>Рынок")
 
     iconAt(pos('I')) {
         type(Material.PAPER)
@@ -384,7 +381,7 @@ with(newPattern("XYIB.....")) {
 }
 ```
 
-Named templates belong to the current pattern. A typed template receives its argument object. An optional icon block runs after the template and can override its defaults.
+Named templates belong to the current pattern. A typed template can take two arguments directly. Type order is checked by the compiler. Use an argument object to bundle additional fields. An optional icon block runs after the template and can override its defaults.
 
 `inputChat<Int>("Enter the amount:") { ... }` is also supported. Input closes the window and consumes the next chat message privately. Callbacks run on the server thread. Types include `String`, `Int`, `Long`, `Float`, `Double` and `Boolean`. The wait defaults to 1200 ticks. Enter `cancel` or `отмена` to cancel. Failure reasons are `INVALID_INPUT`, `CANCELLED` and `TIMEOUT`. An invalid response calls the failure handler and ends the prompt. Disconnecting, opening another inventory or disabling the owner cancels the prompt.
 

@@ -350,19 +350,16 @@ loreLine("§7Баланс: &e%vault_eco_balance%")
 ## Шаблоны иконок, ввод в чат и «Назад»
 
 ```kotlin
-data class WarpArgs(val material: Material, val name: String)
-
 with(newPattern("XYIB.....")) {
-    template("warpTemplate", WarpArgs::class.java) { args ->
-        type(args.material)
-        name(args.name)
+    val warp = template("warpTemplate", Material::class.java, String::class.java) { material, label ->
+        type(material)
+        name(label)
         loreLine("<gray>ЛКМ — выбрать")
         allFlags()
     }
 
-    val warp = template("warpTemplate", WarpArgs::class.java)
-    iconAt(pos('X'), warp, WarpArgs(Material.ENDER_PEARL, "<green>Спавн"))
-    iconAt(pos('Y'), warp, WarpArgs(Material.COMPASS, "<gold>Рынок"))
+    iconAt(pos('X'), warp, Material.ENDER_PEARL, "<green>Спавн")
+    iconAt(pos('Y'), warp, Material.COMPASS, "<gold>Рынок")
 
     iconAt(pos('I')) {
         type(Material.PAPER)
@@ -384,7 +381,7 @@ with(newPattern("XYIB.....")) {
 }
 ```
 
-Именованные шаблоны действуют в текущем паттерне. Типизированный шаблон получает объект параметров. Если у иконки есть собственный блок, он выполняется после шаблона и может переопределить его настройки.
+Именованные шаблоны действуют в текущем паттерне. Два аргумента можно передать в шаблон напрямую. Компилятор проверит их типы и порядок. Если полей больше, их можно передать одним объектом. Если у иконки есть собственный блок, он выполняется после шаблона и может переопределить его настройки.
 
 Есть и сокращённая форма `inputChat<Int>("Введите сумму:") { ... }`. Ввод закрывает окно и перехватывает сообщение игрока до отправки в общий чат. Обработчики выполняются на основном потоке. Поддерживаются `String`, `Int`, `Long`, `Float`, `Double` и `Boolean`. Время ожидания по умолчанию — 1200 тиков. Для отмены введите `отмена` или `cancel`. В `onFailure` приходят `INVALID_INPUT`, `CANCELLED` или `TIMEOUT`. Неверный ответ вызывает обработчик ошибки и завершает ввод. Выход игрока, открытие другого инвентаря и отключение плагина-владельца прекращают ожидание.
 

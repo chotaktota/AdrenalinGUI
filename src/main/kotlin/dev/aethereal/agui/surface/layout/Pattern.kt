@@ -10,6 +10,12 @@ class IconTemplate<T : Any> internal constructor(
     internal val configure: Icon.(T) -> Unit
 )
 
+class IconTemplate2<A : Any, B : Any> internal constructor(
+    internal val firstType: Class<A>,
+    internal val secondType: Class<B>,
+    internal val configure: Icon.(A, B) -> Unit
+)
+
 class Pattern internal constructor(layout: String, rows: Int) {
     private val positions: Map<Char, List<Int>>
     internal val size = rows * 9
@@ -35,28 +41,55 @@ class Pattern internal constructor(layout: String, rows: Int) {
         caption = MenuText(value)
     }
     fun title(value: () -> String) = title(value())
-    private val templates = mutableMapOf<String, IconTemplate<*>>()
+    private val templates = mutableMapOf<String, Any>()
 
     fun template(name: String, configure: Icon.() -> Unit): IconTemplate<Unit> =
         template(name, Unit::class.java) { configure() }
 
-    fun <T : Any> template(name: String, type: Class<T>, configure: Icon.(T) -> Unit): IconTemplate<T> {
+    fun <T : Any> template(name: String, type: Class<T>, configure: Icon.(T) -> Unit): IconTemplate<T> =
+        registerTemplate(name, IconTemplate(type.kotlin.javaObjectType, configure))
+
+    fun <A : Any, B : Any> template(
+        name: String,
+        firstType: Class<A>,
+        secondType: Class<B>,
+        configure: Icon.(A, B) -> Unit
+    ): IconTemplate2<A, B> = registerTemplate(
+        name, IconTemplate2(firstType.kotlin.javaObjectType, secondType.kotlin.javaObjectType, configure)
+    )
+
+    private fun <T : Any> registerTemplate(name: String, template: T): T {
         MenuEngine.requireSync()
         require(name.isNotBlank()) { "Имя шаблона не может быть пустым" }
         require(name !in templates) { "Шаблон иконки уже объявлен: $name" }
-        return IconTemplate(type.kotlin.javaObjectType, configure).also { templates[name] = it }
+        templates[name] = template
+        return template
     }
 
     fun template(name: String): IconTemplate<Unit> = template(name, Unit::class.java)
 
     fun <T : Any> template(name: String, type: Class<T>): IconTemplate<T> {
-        MenuEngine.requireSync()
-        val template = requireNotNull(templates[name]) { "Шаблон иконки не найден: $name" }
-        require(template.type == type.kotlin.javaObjectType) {
-            "Шаблон $name ожидает параметры типа ${template.type.simpleName}"
+        val template = findTemplate(name)
+        require(template is IconTemplate<*> && template.type == type.kotlin.javaObjectType) {
+            "Шаблон $name не принимает параметры типа ${type.simpleName}"
         }
         @Suppress("UNCHECKED_CAST")
         return template as IconTemplate<T>
+    }
+
+    fun <A : Any, B : Any> template(name: String, firstType: Class<A>, secondType: Class<B>): IconTemplate2<A, B> {
+        val template = findTemplate(name)
+        require(template is IconTemplate2<*, *> &&
+            template.firstType == firstType.kotlin.javaObjectType && template.secondType == secondType.kotlin.javaObjectType) {
+            "Шаблон $name не принимает параметры типов ${firstType.simpleName} и ${secondType.simpleName}"
+        }
+        @Suppress("UNCHECKED_CAST")
+        return template as IconTemplate2<A, B>
+    }
+
+    private fun findTemplate(name: String): Any {
+        MenuEngine.requireSync()
+        return requireNotNull(templates[name]) { "Шаблон иконки не найден: $name" }
     }
 
     fun iconAt(slots: Iterable<Int>, template: IconTemplate<Unit>, configure: Icon.() -> Unit = {}) =
@@ -73,6 +106,25 @@ class Pattern internal constructor(layout: String, rows: Int) {
 
     fun <T : Any> iconAt(slot: Int, template: IconTemplate<T>, args: T, configure: Icon.() -> Unit = {}) =
         iconAt(listOf(slot), template, args, configure)
+
+    fun <A : Any, B : Any> iconAt(
+        slots: Iterable<Int>,
+        template: IconTemplate2<A, B>,
+        first: A,
+        second: B,
+        configure: Icon.() -> Unit = {}
+    ) = iconAt(slots) {
+        template.configure(this, first, second)
+        configure()
+    }
+
+    fun <A : Any, B : Any> iconAt(
+        slot: Int,
+        template: IconTemplate2<A, B>,
+        first: A,
+        second: B,
+        configure: Icon.() -> Unit = {}
+    ) = iconAt(listOf(slot), template, first, second, configure)
 
     fun iconAt(slots: Iterable<Int>, configure: Icon.() -> Unit) {
         MenuEngine.requireSync()

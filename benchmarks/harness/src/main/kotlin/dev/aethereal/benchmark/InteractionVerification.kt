@@ -12,8 +12,6 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.plugin.Plugin
 
-private data class WarpArgs(val material: Material, val label: String)
-
 internal fun verifyInteraction(plugin: Plugin, viewer: Player) {
     val engine = (plugin.server.pluginManager.getPlugin("AdrenalinGUI") as AdrenalinGUI).engine
     val target = object : SingleGUISurface(2, plugin) {
@@ -27,17 +25,17 @@ internal fun verifyInteraction(plugin: Plugin, viewer: Player) {
         override fun onUpdateNodes() {
             page("main") {
                 with(newPattern("XY.......")) {
-                    template("warpTemplate", WarpArgs::class.java) { args ->
-                        type(args.material)
-                        name(args.label)
+                    template("warpTemplate", Material::class.java, String::class.java) { material, label ->
+                        type(material)
+                        name(label)
                         loreLine("<gold>Общее описание")
                         glow()
                     }
-                    val warp = template("warpTemplate", WarpArgs::class.java)
-                    iconAt(pos('X'), warp, WarpArgs(Material.DIAMOND, "Первый")) {
+                    val warp = template("warpTemplate", Material::class.java, String::class.java)
+                    iconAt(pos('X'), warp, Material.DIAMOND, "Первый") {
                         onClick { openPage("other") }
                     }
-                    iconAt(pos('Y'), warp, WarpArgs(Material.EMERALD, "Второй"))
+                    iconAt(pos('Y'), warp, Material.EMERALD, "Второй")
                 }
             }
             page("other") {
