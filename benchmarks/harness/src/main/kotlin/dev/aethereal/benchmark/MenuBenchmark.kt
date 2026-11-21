@@ -26,6 +26,7 @@ class MenuBenchmark : JavaPlugin(), Listener {
     private val states = hashMapOf<UUID, String>()
     private var phase = "warmup"
     private var failures = 0
+    private var animationStatus = "Не запускалась"
 
     data class Sample(val phase: String, val menu: String, val metric: String, val nanos: Long)
 
@@ -62,6 +63,13 @@ class MenuBenchmark : JavaPlugin(), Listener {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         when (command.name) {
+            "benchverifyanimation" -> if (sender !is Player) {
+                val viewer = checkNotNull(server.getPlayerExact(args.firstOrNull() ?: "Bench0"))
+                animationStatus = "Выполняется"
+                AnimationVerification(this, viewer) { animationStatus = it }.start()
+                sender.sendMessage(animationStatus)
+            }
+            "benchanimationstatus" -> if (sender !is Player) sender.sendMessage(animationStatus)
             "benchverify" -> if (sender !is Player) {
                 val player = server.getPlayerExact(args.firstOrNull() ?: "Bench0") ?: error("Тестовый игрок не найден")
                 verifyDynamic(player)

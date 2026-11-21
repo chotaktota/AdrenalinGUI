@@ -315,9 +315,9 @@ surface/
 
 ## Current scope
 
-Java inventory menus, named category pages, MiniMessage/legacy, optional PlaceholderAPI, dynamic icons with explicit refresh, Vault economy, LuckPerms, click callbacks and lifecycle hooks are implemented.
+Java inventory menus, named category pages, MiniMessage/legacy, optional PlaceholderAPI, dynamic icons with explicit refresh, tick-based animation, Vault economy, LuckPerms, click callbacks and lifecycle hooks are implemented.
 
-Automatic list pagination, animated items, periodic updates, config loaders, native Bedrock forms, and automatic resource-pack/client detection are not implemented. The `MenuVariant` enum reserves `JAVA_RP`, `JAVA_NRP`, `BEDROCK_RP`, and `BEDROCK_NRP`; these values do not enable those client features.
+Automatic list pagination, automatic polling of dynamic values, config loaders, native Bedrock forms, and automatic resource-pack/client detection are not implemented. The `MenuVariant` enum reserves `JAVA_RP`, `JAVA_NRP`, `BEDROCK_RP`, and `BEDROCK_NRP`; these values do not enable those client features.
 
 Run `./gradlew test` for cache, pattern, page-registry, and lifecycle unit tests. Examples are compiled too; the published bot benchmark additionally checks the listed live-server scenarios.
 
@@ -394,3 +394,44 @@ Import `java.time.Duration`. Amounts must be finite and nonnegative. Check `Tran
 LuckPerms writes return `CompletableFuture<Void>`. Never block the server thread with `join()` or `get()`. Handle failures and schedule Bukkit work, including refresh, on the server thread from continuations. Writes affect the named global nodes and preserve contextual nodes; removing a direct permission does not remove inherited permissions. Group validation and purchase rules belong to your plugin. A withdrawal and an asynchronous group assignment are separate operations.
 
 Upstream APIs: [Vault Economy](https://github.com/MilkBowl/VaultAPI/blob/master/src/main/java/net/milkbowl/vault/economy/Economy.java), [LuckPerms UserManager](https://github.com/LuckPerms/LuckPerms/blob/master/api/src/main/java/net/luckperms/api/model/user/UserManager.java). Add compileOnly `net.luckperms:api:5.4` to your plugin when using `permissions.api`, `user` or `loadUser` directly.
+
+## Tick-based animation
+
+Declare one timeline inside `with(newPattern(...))`:
+
+```kotlin
+animation {
+    at(0) { hide(pos('X')) }
+    at(10) { show(pos('X')) }
+    at(20) {
+        change(pos('X')) { player ->
+            name("<gold>${player.name}")
+            lore("&7Баланс: %vault_eco_balance%")
+            glow()
+        }
+    }
+    at(30) {
+        set(pos('X')) {
+            type(Material.EMERALD)
+            name("<green>Готово")
+            onClick { close() }
+        }
+    }
+    loop(60)
+}
+```
+
+`at(10)` is an absolute server-tick offset from opening, not a delay from the previous step. At 20 TPS this is about half a second; lower TPS increases wall-clock time. Tick 0 runs immediately after `onOpen`; later frames run on the server thread. Steps sharing a tick merge in declaration order.
+
+- `set(slot)` / `set(pos('X'))` replaces the icon using the normal DSL, including `dynamic` and `onClick`. It becomes visible and previous animation edits are cleared.
+- `hide(...)` hides the item and disables its click handler while retaining its icon.
+- `show(...)` restores the latest icon, its edits and current placeholder values.
+- `change(...) { player -> ... }` edits name, lore, glow and enchantments. Use `set` to replace the material. Changing an empty slot does nothing.
+
+Without `loop`, the timeline runs once and leaves its final state. `loop(60)` repeats every 60 ticks and must exceed the last step tick. Step 10 of the next cycle runs at tick 70. Cycles retain state; use `set` at tick 0 if you need to reset an item.
+
+Refresh preserves animation replacements, hidden slots and edits. Saved `change` callbacks are reapplied on refresh, so keep purchases and other side effects out of them. Text accepts MiniMessage, legacy and PlaceholderAPI. Each open window has independent state and progress; shared cached prototypes remain unchanged.
+
+Each animated window has at most one pending task, scheduled for its next frame. Only affected slots are rendered; unchanged items are not set again. There are no online-player scans. Closing, page changes, logout and plugin shutdown cancel pending work. A frame exception closes the window with a diagnostic. A queued click is discarded if its slot changes before dispatch.
+
+Compilable example: [AnimatedGUI](src/test/kotlin/dev/aethereal/agui/example/AnimatedGUI.kt). Earlier performance measurements describe builds before animations were added, not frame playback cost.

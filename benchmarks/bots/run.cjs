@@ -43,7 +43,7 @@ async function main() {
   const started = new Date().toISOString(), checks={windows:0,items:0}
   const rcon = new Rcon(); await rcon.connect()
   const bots=[]
-  for (let i=0;i<8;i++) {
+  for (let i=0;i<(process.env.BENCH_ANIMATION_ONLY === '1' ? 2 : 8);i++) {
     const bot=mineflayer.createBot({host:'127.0.0.1',port:25579,username:'Bench'+i,auth:'offline',version:'1.21.11',hideErrors:false})
     bot.on('kicked',reason=>{ console.error('Kicked',bot.username,reason); process.exitCode=1 })
     bot.on('error',error=>console.error('Bot error',bot.username,error.message))
@@ -55,6 +55,18 @@ async function main() {
   await rcon.send('gamerule minecraft:advance_time false')
   await rcon.send('gamerule minecraft:spawn_mobs false')
   await sleep(3000)
+  if (process.env.BENCH_ANIMATION_ONLY === '1') {
+    try {
+      console.log(await rcon.send('benchverifyanimation Bench0'))
+      for(let i=0;i<60;i++) {
+        await sleep(500)
+        const status=await rcon.send('benchanimationstatus')
+        if(status.includes('пройдена')) { console.log(status); return }
+        if(status.includes('Ошибка')) throw new Error(status)
+      }
+      throw new Error('Animation verification timeout')
+    } finally { bots.forEach(bot=>bot.quit()); rcon.socket.end() }
+  }
   if (process.env.BENCH_VERIFY === '1') {
     const result = await rcon.send('benchverify Bench0')
     if (!result.includes('проверка пройдена')) throw new Error('Dynamic refresh verification failed: '+result)

@@ -9,3 +9,5 @@ commands:
   benchphase: {}
   benchdump: {}
   benchverify: {}
+  benchverifyanimation: {}
+  benchanimationstatus: {}

@@ -14,12 +14,18 @@ internal class CachedMenu(pattern: Pattern) {
     private val items = arrayOfNulls<CachedItem>(size)
     private val handlers = arrayOfNulls<GUIClick.() -> Unit>(size)
 
+    private val nodes = if (pattern.animation == null) null else arrayOfNulls<CachedNode>(size)
+    val animation: CachedAnimation?
+    fun animatedContents() = dev.aethereal.agui.menu.session.AnimatedContents(checkNotNull(nodes).copyOf())
     init {
         val built = IdentityHashMap<Icon, CachedItem>()
+        fun compile(icon: Icon): CachedNode = CachedNode(built.getOrPut(icon) { icon.compile() }, icon.handler)
         pattern.icons.forEach { (slot, icon) ->
             items[slot] = built.getOrPut(icon) { icon.compile() }
+            nodes?.set(slot, CachedNode(checkNotNull(items[slot]), icon.handler))
             handlers[slot] = icon.handler
         }
+        animation = pattern.animation?.let { CachedAnimation(it, ::compile) }
     }
 
     fun title(context: TextContext) = context.render(caption)

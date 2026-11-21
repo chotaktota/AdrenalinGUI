@@ -8,6 +8,12 @@ class Pattern internal constructor(layout: String, rows: Int) {
     private val positions: Map<Char, List<Int>>
     internal val size = rows * 9
     internal var caption = MenuText("")
+    internal var animation: dev.aethereal.agui.surface.animation.MenuAnimation? = null
+    fun animation(configure: dev.aethereal.agui.surface.animation.MenuAnimation.() -> Unit) {
+        MenuEngine.requireSync()
+        check(animation == null) { "Для шаблона можно задать только одну анимацию" }
+        animation = dev.aethereal.agui.surface.animation.MenuAnimation(size).apply(configure)
+    }
     internal val icons = linkedMapOf<Int, Icon>()
     init {
         val lines = layout.trimIndent().lines()
