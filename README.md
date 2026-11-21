@@ -4,7 +4,7 @@ Kotlin API for inventory menus in Minecraft plugins
 
 [English](README.md) · [Русский](README.ru.md)
 
-![HelpGUI pattern and its inventory slots](docs/assets/help-layout.svg)
+![AdrenalinGUI](docs/assets/wordmark.png)
 
 ## Write a menu where your plugin logic lives
 
@@ -284,6 +284,8 @@ BMenu retains a slightly lower placeholder median; AdrenalinGUI has the lower p9
 [Raw samples](benchmarks/results/2026-11-20-loaded-v2/samples.json), [statistics](benchmarks/results/2026-11-20-loaded-v2/summary.json), [conditions and SHA-256](benchmarks/results/2026-11-20-loaded-v2/environment.json). A clean rerun without the game is still needed.
 
 ## Examples
+
+![HelpGUI pattern and its inventory slots](docs/assets/help-layout.svg)
 
 | Example | What it shows |
 | --- | --- |

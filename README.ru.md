@@ -4,7 +4,7 @@ Kotlin API для инвентарных меню в Minecraft-плагинах
 
 [English](README.md) · [Русский](README.ru.md)
 
-![HelpGUI pattern and its inventory slots](docs/assets/help-layout.svg)
+![AdrenalinGUI](docs/assets/wordmark.png)
 
 ## Меню рядом с логикой вашего плагина
 
@@ -284,6 +284,8 @@ commands:
 [Сырые результаты](benchmarks/results/2026-11-20-loaded-v2/samples.json), [статистика](benchmarks/results/2026-11-20-loaded-v2/summary.json), [условия и SHA-256](benchmarks/results/2026-11-20-loaded-v2/environment.json). Для итогового сравнения нужен повтор без игры.
 
 ## Примеры
+
+![Шаблон HelpGUI и расположение слотов](docs/assets/help-layout.svg)
 
 | Пример | Что показывает |
 | --- | --- |
