@@ -35,6 +35,8 @@ AdrenalinGUI устанавливается отдельным плагином.
 
 ## Сборка и установка
 
+Готовый JAR плагина доступен в [GitHub Releases](https://github.com/chotaktota/AdrenalinGUI/releases). При отправке тега вида `v1.0.0` GitHub собирает проект на Java 21, запускает тесты и публикует JAR с версией из тега.
+
 ```bash
 git clone https://github.com/chotaktota/AdrenalinGUI.git
 cd AdrenalinGUI

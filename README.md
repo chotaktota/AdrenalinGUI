@@ -35,6 +35,8 @@ The build, unit tests and local bot benchmark cover the published scenarios belo
 
 ## Build and install
 
+Download the plugin JAR from [GitHub Releases](https://github.com/chotaktota/AdrenalinGUI/releases). Pushing a tag such as `v1.0.0` runs the Gradle build and tests on Java 21, then publishes the versioned JAR.
+
 ```bash
 git clone https://github.com/chotaktota/AdrenalinGUI.git
 cd AdrenalinGUI
