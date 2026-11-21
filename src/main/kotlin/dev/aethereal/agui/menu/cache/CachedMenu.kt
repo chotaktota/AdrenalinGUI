@@ -1,6 +1,6 @@
 package dev.aethereal.agui.menu.cache
 
-import dev.aethereal.agui.menu.text.TextContext
+import dev.aethereal.agui.text.TextContext
 import dev.aethereal.agui.surface.icon.Icon
 import dev.aethereal.agui.surface.icon.action.GUIClick
 import dev.aethereal.agui.surface.pattern.Pattern

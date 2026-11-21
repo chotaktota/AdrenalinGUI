@@ -2,7 +2,7 @@ package dev.aethereal.agui.surface.pattern
 
 import dev.aethereal.agui.surface.icon.Icon
 import dev.aethereal.agui.menu.MenuEngine
-import dev.aethereal.agui.menu.text.MenuText
+import dev.aethereal.agui.text.MenuText
 
 class Pattern internal constructor(layout: String, rows: Int) {
     private val positions: Map<Char, List<Int>>

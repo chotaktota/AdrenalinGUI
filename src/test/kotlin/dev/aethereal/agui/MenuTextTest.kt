@@ -1,7 +1,7 @@
 package dev.aethereal.agui
 
-import dev.aethereal.agui.menu.text.MenuText
-import dev.aethereal.agui.menu.text.TextContext
+import dev.aethereal.agui.text.MenuText
+import dev.aethereal.agui.text.TextContext
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import kotlin.test.Test

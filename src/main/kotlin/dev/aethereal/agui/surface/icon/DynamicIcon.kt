@@ -1,8 +1,8 @@
 package dev.aethereal.agui.surface.icon
 
 import dev.aethereal.agui.menu.MenuEngine
-import dev.aethereal.agui.menu.text.MenuText
-import dev.aethereal.agui.menu.text.TextContext
+import dev.aethereal.agui.text.MenuText
+import dev.aethereal.agui.text.TextContext
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.inventory.ItemStack
@@ -24,5 +24,5 @@ class DynamicIcon internal constructor(private val item: ItemStack, private val 
         meta.addEnchant(enchantment, level, true)
     }
     fun removeEnchant(enchantment: Enchantment) { MenuEngine.requireSync(); meta.removeEnchant(enchantment) }
-    internal fun apply() { check(item.setItemMeta(meta)) { "Не удалось применить мету предмета" } }
+    internal fun apply(): ItemStack { check(item.setItemMeta(meta)) { "Не удалось применить мету предмета" }; return item }
 }

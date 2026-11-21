@@ -3,7 +3,7 @@ package dev.aethereal.agui.surface.icon.item
 import net.kyori.adventure.text.format.TextDecoration
 import dev.aethereal.agui.menu.MenuEngine
 import dev.aethereal.agui.menu.cache.CachedItem
-import dev.aethereal.agui.menu.text.MenuText
+import dev.aethereal.agui.text.MenuText
 import org.bukkit.Material
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack

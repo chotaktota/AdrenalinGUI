@@ -10,13 +10,13 @@ class MenuAnimation internal constructor(private val size: Int) {
     internal var period: Long? = null
     fun at(tick: Long, configure: AnimationFrame.() -> Unit) {
         MenuEngine.requireSync()
-        require(tick >= 0) { "Тик анимации не может быть отрицательным" }
+        require(tick in 0..Int.MAX_VALUE.toLong()) { "Тик анимации должен быть от 0 до 2147483647" }
         val frame = AnimationFrame(size).apply(configure)
         steps.getOrPut(tick) { mutableListOf() }.addAll(frame.operations)
     }
     fun loop(ticks: Long) {
         MenuEngine.requireSync()
-        require(ticks > 0) { "Период анимации должен быть положительным" }
+        require(ticks in 1..Int.MAX_VALUE.toLong()) { "Период анимации должен быть от 1 до 2147483647 тиков" }
         period = ticks
     }
 }

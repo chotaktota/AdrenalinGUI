@@ -298,28 +298,36 @@ BMenu retains a slightly lower placeholder median; AdrenalinGUI has the lower p9
 ## Project layout
 
 ```text
+AdrenalinGUI.kt
+command/
+  GuisCommand.kt
+  MenuListPage.kt
 menu/
   MenuEngine.kt
   MenuRegistry.kt
-  MenuVariant.kt
   cache/
   session/
+  task/
   page/
-    MenuPage.kt
-    PageManager.kt
     registry/
 surface/
+  GUISurface.kt
   SingleGUISurface.kt
   MultiGUISurface.kt
-  pattern/
+  animation/
   icon/
+  pattern/
+integration/
+text/
+listener/
 ```
 
 ## Current scope
 
 Java inventory menus, named category pages, MiniMessage/legacy, optional PlaceholderAPI, dynamic icons with explicit refresh, tick-based animation, Vault economy, LuckPerms, click callbacks and lifecycle hooks are implemented.
 
-Automatic list pagination, automatic polling of dynamic values, config loaders, native Bedrock forms, and automatic resource-pack/client detection are not implemented. The `MenuVariant` enum reserves `JAVA_RP`, `JAVA_NRP`, `BEDROCK_RP`, and `BEDROCK_NRP`; these values do not enable those client features.
+
+Automatic list pagination, automatic polling of dynamic values, config loaders, native Bedrock forms, and resource-pack/client detection are not implemented.
 
 Run `./gradlew test` for cache, pattern, page-registry, and lifecycle unit tests. Examples are compiled too; the published bot benchmark additionally checks the listed live-server scenarios.
 
@@ -434,6 +442,25 @@ Without `loop`, the timeline runs once and leaves its final state. `loop(60)` re
 
 Refresh preserves animation replacements, hidden slots and edits. Saved `change` callbacks are reapplied on refresh, so keep purchases and other side effects out of them. Text accepts MiniMessage, legacy and PlaceholderAPI. Each open window has independent state and progress; shared cached prototypes remain unchanged.
 
-Each animated window has at most one pending task, scheduled for its next frame. Only affected slots are rendered; unchanged items are not set again. There are no online-player scans. Closing, page changes, logout and plugin shutdown cancel pending work. A frame exception closes the window with a diagnostic. A queued click is discarded if its slot changes before dispatch.
+The engine maintains at most one pending scheduler callback for its queue of frames and clicks. An empty queue schedules no background work. Only affected slots are rendered; unchanged items are not set again. There are no online-player scans. Closing, page changes, logout and plugin shutdown cancel pending work. A frame exception closes the window with a diagnostic. A queued click is discarded if its slot changes before dispatch.
 
 Compilable example: [AnimatedGUI](src/test/kotlin/dev/aethereal/agui/example/AnimatedGUI.kt). Earlier performance measurements describe builds before animations were added, not frame playback cost.
+
+## /guis info command
+
+Requires `adrenalingui.admin` (operators by default).
+
+| Command | Action |
+| --- | --- |
+| `/guis` | Show usage |
+| `/guis info` | List ten registered menus with owner plugin and menu type |
+| `/guis info --page <number>` | Show another list page |
+| `/guis info <menu>` | Show owner/version, plugin state, type, class and menu size |
+
+Multi-page menus also show their initial page. The command opens no inventory, invalidates no cache and builds no menu templates. Only `engine.menus.register(id, menu)` registrations appear. IDs support tab completion; use IDs without spaces. Console execution is supported.
+
+`engine.menus.entries()` returns an independent registry snapshot. Changing it cannot alter registrations. Call it on the server thread.
+
+## Package changes
+
+Commands now live in `dev.aethereal.agui.command`, integrations in `dev.aethereal.agui.integration`, text processing in `dev.aethereal.agui.text`, and listeners in `dev.aethereal.agui.listener`. Update old `menu.integration` imports. The main `menu` and `surface` APIs retain their packages. The public build has no AethLibrary dependency.

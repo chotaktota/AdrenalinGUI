@@ -1,4 +1,4 @@
-package dev.aethereal.agui.surface.icon.action.listener
+package dev.aethereal.agui.listener
 
 import dev.aethereal.agui.menu.MenuEngine
 import dev.aethereal.agui.menu.session.MenuSession

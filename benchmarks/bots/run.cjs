@@ -43,7 +43,7 @@ async function main() {
   const started = new Date().toISOString(), checks={windows:0,items:0}
   const rcon = new Rcon(); await rcon.connect()
   const bots=[]
-  for (let i=0;i<(process.env.BENCH_ANIMATION_ONLY === '1' ? 2 : 8);i++) {
+  for (let i=0;i<((process.env.BENCH_ANIMATION_ONLY === '1' || process.env.BENCH_GUIS_ONLY === '1') ? 2 : 8);i++) {
     const bot=mineflayer.createBot({host:'127.0.0.1',port:25579,username:'Bench'+i,auth:'offline',version:'1.21.11',hideErrors:false})
     bot.on('kicked',reason=>{ console.error('Kicked',bot.username,reason); process.exitCode=1 })
     bot.on('error',error=>console.error('Bot error',bot.username,error.message))
@@ -55,6 +55,54 @@ async function main() {
   await rcon.send('gamerule minecraft:advance_time false')
   await rcon.send('gamerule minecraft:spawn_mobs false')
   await sleep(3000)
+  if (process.env.BENCH_GUIS_ONLY === '1') {
+    const bot=bots[0], messages=[]
+    bot.on('messagestr', text=>messages.push(text))
+    const check=(condition, text)=>{if(!condition) throw new Error(text)}
+    try {
+      console.log(await rcon.send('benchverifyguis'))
+      const listing=await rcon.send('guis info')
+      check(listing.includes('47') && listing.includes('verify:00') && listing.includes('MenuBenchmark'),'Invalid registry listing: '+listing)
+      const next=await rcon.send('guis info --page 2')
+      check(next.includes('verify:10') && !next.includes('verify:00'),'Invalid second page: '+next)
+      const detail=await rcon.send('guis info verify:00')
+      check(detail.includes('MenuBenchmark') && detail.includes('1 строк') && detail.includes('Одностраничное'),'Invalid menu details: '+detail)
+      const multi=await rcon.send('guis info verify:zz')
+      check(multi.includes('Многостраничное') && multi.includes('main'),'Invalid multi-page details: '+multi)
+      check((await rcon.send('guis info missing')).includes('Меню не найдено'),'Unknown menu did not report an error')
+      check((await rcon.send('guis info --page -1')).includes('положительным'),'Invalid page was accepted')
+      messages.length=0
+      bot.chat('/guis info verify:00')
+      await sleep(750)
+      check(messages.length>0 && !messages.some(text=>text.includes('Плагин:')),'Denied player received details: '+messages.join('|'))
+      await rcon.send('benchguispermission allow')
+      await sleep(750)
+      messages.length=0
+      bot.chat('/guis info verify:00')
+      await sleep(750)
+      check(messages.some(text=>text.includes('Плагин: MenuBenchmark')),'Allowed player received no details: '+messages.join('|'))
+      check(!bot.currentWindow,'Info unexpectedly opened a GUI')
+      const completion=await bot.tabComplete('/guis info verify:')
+      check(completion.some(match=>String(match.match || match.text || match).includes('verify:00')),'Missing menu completion: '+JSON.stringify(completion))
+      check((await rcon.send('benchguisstatus')).includes('построений=0'),'Info built menu layouts')
+      await rcon.send('benchguispermission deny')
+      await sleep(750)
+      messages.length=0
+      bot.chat('/guis info verify:00')
+      await sleep(750)
+      check(!messages.some(text=>text.includes('Плагин:')),'Revoked player still received details')
+      await rcon.send('benchguiscleanup')
+      check((await rcon.send('guis info')).includes('Зарегистрированных меню нет'),'Empty registry response is incorrect')
+      const output=process.env.BENCH_OUTPUT_DIR || path.join(__dirname,'dumps')
+      fs.mkdirSync(output,{recursive:true})
+      fs.writeFileSync(path.join(output,'guis-verification.json'),JSON.stringify({started,finished:new Date().toISOString(),registered:47,passed:true,checks:['pagination','owner','single','multi','missing','invalid_page','permission','revocation','completion','no_layout_build','no_gui','empty_registry']},null,2))
+      console.log('Guis verification passed')
+    } finally {
+      await rcon.send('benchguiscleanup')
+      bots.forEach(bot=>bot.quit()); rcon.socket.end()
+    }
+    return
+  }
   if (process.env.BENCH_ANIMATION_ONLY === '1') {
     try {
       console.log(await rcon.send('benchverifyanimation Bench0'))

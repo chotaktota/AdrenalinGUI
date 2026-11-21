@@ -24,7 +24,7 @@ internal class MenuSession(
     private val contents = owner.server.createInventory(this, template.size, template.title(text))
     private val animated = template.animation?.let { template.animatedContents() }
     private val cursor = template.animation?.cursor()
-    private var animationTask: org.bukkit.scheduler.BukkitTask? = null
+    private var animationTask: dev.aethereal.agui.menu.task.MenuScheduler.Handle? = null
     private var active = false
     private var queued = false
     private val lifecycle = SessionLifecycle(
@@ -57,10 +57,10 @@ internal class MenuSession(
         val revision = animated?.revision(slot)
         if (queued || !active || !owner.isEnabled) return
         queued = true
-        engine.plugin.server.scheduler.runTaskLater(engine.plugin, Runnable {
+        engine.tasks.later(1L) {
             queued = false
             if (active && owner.isEnabled && player.isOnline && player.openInventory.topInventory === contents) {
-                if (animated?.revision(slot) != revision) return@Runnable
+                if (animated?.revision(slot) != revision) return@later
                 try {
                     val navigate = onNavigate?.let { action ->
                         { target: String ->
@@ -74,7 +74,7 @@ internal class MenuSession(
                     owner.logger.log(Level.SEVERE, "Ошибка обработки клика в слоте $slot", exception)
                 }
             }
-        }, 1L)
+        }
     }
     private fun nextFrame() {
         val next = cursor?.next() ?: return
@@ -82,10 +82,10 @@ internal class MenuSession(
             runFrame(next.second)
             return
         }
-        animationTask = engine.plugin.server.scheduler.runTaskLater(engine.plugin, Runnable {
+        animationTask = engine.tasks.later(next.first) {
             animationTask = null
             runFrame(next.second)
-        }, next.first)
+        }
     }
     private fun runFrame(operations: List<dev.aethereal.agui.menu.cache.CachedAnimation.Operation>) {
         if (!active || !owner.isEnabled || !player.isOnline || player.openInventory.topInventory !== contents) return

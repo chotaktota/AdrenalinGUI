@@ -1,7 +1,7 @@
 package dev.aethereal.agui.menu.cache
 
-import dev.aethereal.agui.menu.text.MenuText
-import dev.aethereal.agui.menu.text.TextContext
+import dev.aethereal.agui.text.MenuText
+import dev.aethereal.agui.text.TextContext
 import dev.aethereal.agui.surface.icon.DynamicIcon
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextDecoration
@@ -40,8 +40,7 @@ internal class CachedItem(
         val item = base.clone()
         val dynamic = DynamicIcon(item, context)
         update.invoke(dynamic, checkNotNull(context.player))
-        dynamic.apply()
-        return item
+        return dynamic.apply()
     }
     private class RenderKey(private val components: List<Component?>) {
         private val hash = components.fold(1) { result, component -> 31 * result + System.identityHashCode(component) }

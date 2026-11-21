@@ -11,3 +11,7 @@ commands:
   benchverify: {}
   benchverifyanimation: {}
   benchanimationstatus: {}
+  benchverifyguis: {}
+  benchguisstatus: {}
+  benchguispermission: {}
+  benchguiscleanup: {}

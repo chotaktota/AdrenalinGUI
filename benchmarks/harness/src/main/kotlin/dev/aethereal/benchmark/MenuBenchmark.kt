@@ -27,6 +27,8 @@ class MenuBenchmark : JavaPlugin(), Listener {
     private var phase = "warmup"
     private var failures = 0
     private var animationStatus = "Не запускалась"
+    private var guisStatus = "Не запускалась"
+    private var guisVerification: GuisVerification? = null
 
     data class Sample(val phase: String, val menu: String, val metric: String, val nanos: Long)
 
@@ -63,6 +65,24 @@ class MenuBenchmark : JavaPlugin(), Listener {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         when (command.name) {
+            "benchverifyguis" -> if (sender !is Player) {
+                guisStatus = "Выполняется"
+                guisVerification?.close()
+                guisVerification = GuisVerification(this, checkNotNull(server.getPlayerExact("Bench0"))) { guisStatus = it }
+                guisVerification?.start()
+                sender.sendMessage(guisStatus)
+            }
+            "benchguisstatus" -> if (sender !is Player) sender.sendMessage(guisVerification?.report() ?: guisStatus)
+            "benchguispermission" -> if (sender !is Player) {
+                checkNotNull(guisVerification).permission(args.firstOrNull() == "allow")
+                sender.sendMessage("Право обновлено")
+            }
+            "benchguiscleanup" -> if (sender !is Player) {
+                guisVerification?.close()
+                guisVerification = null
+                guisStatus = "Очищено"
+                sender.sendMessage(guisStatus)
+            }
             "benchverifyanimation" -> if (sender !is Player) {
                 val viewer = checkNotNull(server.getPlayerExact(args.firstOrNull() ?: "Bench0"))
                 animationStatus = "Выполняется"

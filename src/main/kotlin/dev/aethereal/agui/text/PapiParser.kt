@@ -1,4 +1,4 @@
-package dev.aethereal.agui.menu.text
+package dev.aethereal.agui.text
 
 import me.clip.placeholderapi.PlaceholderAPI
 import org.bukkit.entity.Player

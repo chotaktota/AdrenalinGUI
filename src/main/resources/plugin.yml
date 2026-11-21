@@ -4,3 +4,14 @@ main: dev.aethereal.agui.AdrenalinGUI
 api-version: '1.21.11'
 authors: [aethereal]
 softdepend: [PlaceholderAPI, Vault, LuckPerms]
+
+commands:
+  guis:
+    description: Информация о зарегистрированных меню
+    usage: /guis info [меню]
+    permission: adrenalingui.admin
+    permission-message: У вас нет права adrenalingui.admin
+permissions:
+  adrenalingui.admin:
+    description: Управление меню AdrenalinGUI
+    default: op

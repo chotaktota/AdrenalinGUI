@@ -1,4 +1,4 @@
-package dev.aethereal.agui.menu.integration
+package dev.aethereal.agui.integration
 
 import dev.aethereal.agui.menu.MenuEngine
 import net.milkbowl.vault.economy.Economy

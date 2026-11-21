@@ -1,0 +1,24 @@
+{
+  "started": "2026-11-21T10:07:33.158Z",
+  "finished": "2026-11-21T10:07:46.529Z",
+  "registered": 47,
+  "passed": true,
+  "checks": [
+    "pagination",
+    "owner",
+    "single",
+    "multi",
+    "missing",
+    "invalid_page",
+    "permission",
+    "revocation",
+    "completion",
+    "no_layout_build",
+    "no_gui",
+    "empty_registry"
+  ],
+  "unit_tests": 56,
+  "animation_check_passed": true,
+  "server": "Paper 1.21.11 build 132",
+  "artifact_sha256": "77e2f06f96b41a6bec1e6c591b8903cf3df5fff6958189ab8abe9dd85b5721ca"
+}

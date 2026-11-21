@@ -1,4 +1,4 @@
-package dev.aethereal.agui.menu.text
+package dev.aethereal.agui.text
 
 import dev.aethereal.agui.menu.MenuEngine
 import org.bukkit.entity.Player

@@ -2,7 +2,7 @@ package dev.aethereal.agui.menu.session
 
 import dev.aethereal.agui.menu.cache.CachedAnimation
 import dev.aethereal.agui.menu.cache.CachedNode
-import dev.aethereal.agui.menu.text.TextContext
+import dev.aethereal.agui.text.TextContext
 import dev.aethereal.agui.surface.icon.DynamicIcon
 import org.bukkit.inventory.Inventory
 
@@ -35,11 +35,11 @@ internal class AnimatedContents(private val nodes: Array<CachedNode?>) {
         for (slot in slots.distinct()) {
             val node = nodes[slot]
             val item = if (!visible[slot] || node == null) null else {
-                val copy = rendered.getOrPut(node.item) { node.item.render(context) }.clone()
+                var copy = rendered.getOrPut(node.item) { node.item.render(context) }.clone()
                 changes[slot]?.let { edits ->
                     val icon = DynamicIcon(copy, context)
                     edits.forEach { it.configure.invoke(icon, checkNotNull(context.player)) }
-                    icon.apply()
+                    copy = icon.apply()
                 }
                 copy
             }

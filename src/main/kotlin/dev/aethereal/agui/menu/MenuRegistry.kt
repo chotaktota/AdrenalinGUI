@@ -21,6 +21,11 @@ class MenuRegistry internal constructor() {
         return registered[id]
     }
 
+    fun entries(): Map<String, GUISurface> {
+        MenuEngine.requireSync()
+        return registered.toMap()
+    }
+
     fun unregister(id: String): GUISurface? {
         MenuEngine.requireSync()
         return registered.remove(id)?.also { it.invalidateCache(); cached.remove(it) }

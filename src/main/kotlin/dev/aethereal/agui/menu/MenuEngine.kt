@@ -3,20 +3,24 @@ package dev.aethereal.agui.menu
 import dev.aethereal.agui.AdrenalinGUI
 import dev.aethereal.agui.menu.cache.CachedMenu
 import dev.aethereal.agui.menu.session.MenuSession
-import dev.aethereal.agui.menu.text.TextRenderer
+import dev.aethereal.agui.text.TextRenderer
 import dev.aethereal.agui.surface.GUISurface
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 
 class MenuEngine internal constructor(val plugin: AdrenalinGUI) : AutoCloseable {
     val menus = MenuRegistry()
-    private val economyAccess by lazy { dev.aethereal.agui.menu.integration.MenuEconomy(plugin) }
-    private val permissionAccess by lazy { dev.aethereal.agui.menu.integration.MenuPermissions(plugin) }
-    val economy: dev.aethereal.agui.menu.integration.MenuEconomy
+    private val economyAccess by lazy { dev.aethereal.agui.integration.MenuEconomy(plugin) }
+    private val permissionAccess by lazy { dev.aethereal.agui.integration.MenuPermissions(plugin) }
+    val economy: dev.aethereal.agui.integration.MenuEconomy
         get() { requireSync(); checkAvailable(); check(plugin.server.pluginManager.isPluginEnabled("Vault")) { "Vault недоступен" }; return economyAccess }
-    val permissions: dev.aethereal.agui.menu.integration.MenuPermissions
+    val permissions: dev.aethereal.agui.integration.MenuPermissions
         get() { requireSync(); checkAvailable(); check(plugin.server.pluginManager.isPluginEnabled("LuckPerms")) { "LuckPerms недоступен" }; return permissionAccess }
     internal val text = TextRenderer(plugin)
+    internal val tasks = dev.aethereal.agui.menu.task.MenuScheduler(org.bukkit.Bukkit::getCurrentTick) { delay, action ->
+        val task = plugin.server.scheduler.runTaskLater(plugin, Runnable { action() }, delay)
+        dev.aethereal.agui.menu.task.MenuScheduler.Handle { task.cancel() }
+    }
     private val sessions = linkedSetOf<MenuSession>()
     private var closed = false
 
@@ -51,6 +55,7 @@ class MenuEngine internal constructor(val plugin: AdrenalinGUI) : AutoCloseable 
 
     internal fun close(owner: Plugin) {
         requireSync()
+        if (owner === plugin) { close(); return }
         sessions.filter { it.owner === owner }.forEach { it.close() }
         menus.clear(owner)
     }
@@ -59,6 +64,7 @@ class MenuEngine internal constructor(val plugin: AdrenalinGUI) : AutoCloseable 
         requireSync()
         if (closed) return
         closed = true
+        tasks.close()
         sessions.toList().forEach { it.close() }
         sessions.clear()
         menus.clear()

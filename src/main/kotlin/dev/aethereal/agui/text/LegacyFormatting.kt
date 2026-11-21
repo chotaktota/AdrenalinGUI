@@ -1,4 +1,4 @@
-package dev.aethereal.agui.menu.text
+package dev.aethereal.agui.text
 
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
