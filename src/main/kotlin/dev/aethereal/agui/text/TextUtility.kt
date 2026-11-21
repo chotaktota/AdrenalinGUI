@@ -6,7 +6,7 @@ import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 
-internal class TextRenderer(private val plugin: Plugin) {
+internal class TextUtility(private val plugin: Plugin) {
     fun forPlayer(player: Player): TextContext {
         MenuEngine.requireSync()
         return if (plugin.server.pluginManager.isPluginEnabled("PlaceholderAPI")) {

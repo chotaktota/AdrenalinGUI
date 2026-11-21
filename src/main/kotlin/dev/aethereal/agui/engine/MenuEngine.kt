@@ -3,7 +3,7 @@ package dev.aethereal.agui.engine
 import dev.aethereal.agui.AdrenalinGUI
 import dev.aethereal.agui.engine.cache.CachedMenu
 import dev.aethereal.agui.engine.session.MenuSession
-import dev.aethereal.agui.text.TextRenderer
+import dev.aethereal.agui.text.TextUtility
 import dev.aethereal.agui.surface.GUISurface
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
@@ -16,7 +16,7 @@ class MenuEngine internal constructor(val plugin: AdrenalinGUI) : AutoCloseable 
         get() { requireSync(); checkAvailable(); check(plugin.server.pluginManager.isPluginEnabled("Vault")) { "Vault недоступен" }; return economyAccess }
     val permissions: dev.aethereal.agui.integration.MenuPermissions
         get() { requireSync(); checkAvailable(); check(plugin.server.pluginManager.isPluginEnabled("LuckPerms")) { "LuckPerms недоступен" }; return permissionAccess }
-    internal val text = TextRenderer(plugin)
+    internal val text = TextUtility(plugin)
     internal val tasks = dev.aethereal.agui.engine.MenuScheduler(org.bukkit.Bukkit::getCurrentTick) { delay, action ->
         val task = plugin.server.scheduler.runTaskLater(plugin, Runnable { action() }, delay)
         dev.aethereal.agui.engine.MenuScheduler.Handle { task.cancel() }
