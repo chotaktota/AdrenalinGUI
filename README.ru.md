@@ -312,10 +312,21 @@ surface/
   SingleGUISurface.kt
   MultiGUISurface.kt
   layout/
+    Pattern.kt
+    page/
   item/
+    Icon.kt
+    DynamicIcon.kt
+    InputField.kt
+    builder/
+    click/
+      GUIClick.kt
+      action/
+        ItemAction.kt
+        PlayerAction.kt
+        OtherAction.kt
   animation/
 command/
-integration/
 text/
 listener/
 ```
@@ -387,6 +398,26 @@ with(newPattern("XYIB.....")) {
 
 В блоке иконки `back()` назначает готовое действие возврата. Внутри `onClick` метод `hasPreviousMenu()` проверяет наличие предыдущего меню, а `back()` возвращает к нему. У движка также есть `hasPreviousMenu(player)` и `back(player)`. История хранит до 32 переходов между меню и страницами. Закрытие окна завершает эту историю.
 
+## Инвентарь игрока
+
+В `onClick` действия доступны напрямую: `countItem`, `hasItem`, `giveItem` и `takeItem`. В остальных обработчиках на основном потоке используйте `ItemAction(player)` из пакета `dev.aethereal.agui.surface.item.click.action`.
+
+```kotlin
+onClick {
+    val count = countItem(Material.DIAMOND)
+    if (takeItem(Material.DIAMOND, 3)) {
+        player.sendMessage("Списано 3 алмаза из $count")
+    }
+    if (!giveItem(Material.EMERALD, 20)) {
+        player.sendMessage("В инвентаре не хватает места для изумрудов")
+    }
+}
+```
+
+`countItem`, `hasItem` и `takeItem` принимают `Material` или `ItemStack`. При передаче `ItemStack` сравниваются тип и метаданные. Количество в стаке задаёт значение по умолчанию для `hasItem` и `takeItem`.
+
+`freeInventorySlots()` возвращает число пустых слотов, `isInventoryFull()` проверяет, заняты ли все слоты. `spaceForItem(stack)` и `canFitItem(stack, amount)` учитывают место в совместимых стаках. `giveItem` и `takeItem` выдают или списывают всё количество целиком. При результате `false` инвентарь остаётся как был. Методы работают с основным инвентарём и хотбаром. Броня и вторая рука в расчёт не входят.
+
 ## Свойства предметов
 
 ```kotlin
@@ -443,7 +474,7 @@ iconAt(pos('B')) {
         if (balance >= 100.0) enchant(Enchantment.UNBREAKING, 1)
     }
     onClick {
-        val result = engine.economy.withdraw(player, 100.0)
+        val result = withdraw(100.0)
         if (result.success) engine.refresh(player, slot)
     }
 }
@@ -483,7 +514,7 @@ rights.addGroup(player.uniqueId, "vip", duration = Duration.ofDays(7))
 rights.removeGroup(player.uniqueId, "old")
 ```
 
-`Duration` — `java.time.Duration`. Суммы должны быть конечными и неотрицательными. Проверяйте `Transaction.success`, а не только предварительный `has`: провайдер может отклонить операцию. Доступ без установленного API/провайдера завершается диагностической ошибкой.
+`Duration` — `java.time.Duration`. Суммы должны быть конечными и неотрицательными. Проверяйте `Transaction.success`, а не только предварительный `hasItem`: провайдер может отклонить операцию. Доступ без установленного API/провайдера завершается диагностической ошибкой.
 
 Изменения LuckPerms возвращают `CompletableFuture<Void>`; не вызывайте `join()`/`get()` на основном потоке. Проверяйте ошибку завершения, а refresh, выдачу предметов и другие Bukkit-вызовы из continuation планируйте через основной поток. Операции меняют только указанные глобальные узлы, сохраняя контекстные права. Снятие собственного узла не отменяет права, унаследованные от группы. Валидность группы и бизнес-правила покупки проверяет ваш плагин; списание и асинхронная выдача группы не являются общей транзакцией.
 
@@ -548,3 +579,72 @@ animation {
 ## Изменение пакетов
 
 MenuEngine и MenuRegistry перенесены в `dev.aethereal.agui.engine`. При явном использовании типов DSL обновите импорты по дереву пакетов.
+
+### Поля для предметов и задержка клика
+
+`inputAt(pos('X'))` разрешает помещать предметы в отмеченные слоты. Поддерживаются обычный перенос, shift-клик, клавиши хотбара и перетаскивание по разрешённым слотам. Сбор предметов двойным кликом заблокирован. Поля не могут пересекаться с иконками и анимацией. При refresh содержимое полей сохраняется.
+
+`inputItem(slot)` в обработчике клика возвращает копию предмета. `takeInput(slot)` извлекает предмет из поля и передаёт его обработчику. Извлечённым предметом распоряжается обработчик. Остальные предметы возвращаются при закрытии, переходе страницы и выходе игрока. При нехватке места остаток выпадает возле игрока с владельцем.
+
+`cooldown(10)` внутри `iconAt` задаёт задержку в 10 серверных тиков между выполнениями обработчика. Задержка действует на игрока и объявленную иконку в текущей сессии, включая все слоты одной иконки. При открытии новой сессии задержка начинается заново. Таймеры для отсчёта не создаются.
+
+```kotlin
+inputAt(pos('X'))
+iconAt(pos('B')) {
+    type(Material.ANVIL)
+    name("<red>Обработать предмет")
+    cooldown(10)
+    onClick {
+        val slot = pos('X').first()
+        val item = inputItem(slot)
+        if (item != null) {
+            player.sendMessage("В поле ${item.amount} предметов")
+        }
+    }
+}
+```
+
+### Поле с барьером и отдельным слотом
+
+```kotlin
+inputAt(pos('S').first(), pos('T').first()) {
+    placeholder {
+        type(Material.BARRIER)
+        name("<red>Поместите предмет")
+        loreLine("<gray>ЛКМ — весь стак, ПКМ — один предмет")
+    }
+    loreLine("<yellow>Предмет выбран для улучшения")
+}
+```
+
+В шаблоне `S` — место барьера, `T` — целевой слот. При переносе барьер скрывается. При полном извлечении предмета он появляется снова. ЛКМ переносит весь стак с курсора, ПКМ — один предмет. Режим можно закрепить через `transfer(InputTransfer.ALL)` или `transfer(InputTransfer.ONE)`. По умолчанию используется `InputTransfer.CLICK`.
+
+Дополнительный лор отображается только внутри меню и проходит через MiniMessage, legacy и PlaceholderAPI. Исходное имя, лор и прочие метаданные сохраняются. `inputItem` и `takeInput` работают с целевым слотом и возвращают оригинал без дополнительного лора.
+
+Из целевого слота предмет забирается ЛКМ, ПКМ или shift-кликом. Клавиши хотбара, выбрасывание и перетаскивание для связанных слотов заблокированы. Shift-клик из инвентаря игрока заполняет обычные поля, а связанное поле заполняется нажатием на барьер. При закрытии возвращается исходный предмет.
+
+
+### Действия в onClick
+
+Все действия вызываются напрямую. Реализации находятся в `surface/item/click/action`: `ItemAction` содержит работу с инвентарём, `PlayerAction` — экономику и права, `OtherAction` — ввод чата, переходы и поля меню.
+
+```kotlin
+onClick {
+    val balance = balance()
+    val diamonds = countItem(Material.DIAMOND)
+    if (hasMoney(100.0)) {
+        player.sendMessage("Баланс: $balance, алмазов: $diamonds")
+    }
+    inputChat<Int>("Введите количество") {
+        validate { it > 0 }
+        onSuccess { amount -> sendMessage("Вы ввели $amount") }
+        onFailure { reason -> sendMessage("Ввод завершён: $reason") }
+    }
+}
+```
+
+Экономика доступна через `balance()`, `hasMoney(amount)`, `withdraw(amount)` и `deposit(amount)`. Списание и пополнение возвращают `PlayerAction.Transaction` с результатом операции.
+
+`hasPermission(permission)` использует проверку прав игрока Bukkit. `setPermission`, `unsetPermission`, `addGroup`, `removeGroup`, `prefix()`, `suffix()` и `groups()` работают через LuckPerms. Изменения прав и групп возвращают `CompletableFuture`. Для Bukkit API из асинхронного продолжения нужно переключиться на основной поток.
+
+За пределами обработчика используйте `engine.actions(player)` или `ItemAction(player)` на основном потоке. Удалённые отдельные типы `MenuEconomy`, `MenuPermissions`, `PlayerItems` и `ChatInput` заменены классами действий. Настройки ввода и причины завершения находятся в `OtherAction.Chat` и `OtherAction.InputFailure`.

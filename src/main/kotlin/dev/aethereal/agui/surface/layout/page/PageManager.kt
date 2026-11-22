@@ -1,5 +1,6 @@
-package dev.aethereal.agui.surface.layout
+package dev.aethereal.agui.surface.layout.page
 
+import dev.aethereal.agui.surface.layout.Pattern
 import dev.aethereal.agui.engine.MenuEngine
 
 class PageManager internal constructor(private val id: String, private val rows: Int) {

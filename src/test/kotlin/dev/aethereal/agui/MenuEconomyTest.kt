@@ -1,10 +1,11 @@
 package dev.aethereal.agui
 
-import dev.aethereal.agui.integration.MenuEconomy
+import dev.aethereal.agui.surface.item.click.action.PlayerAction
 import net.milkbowl.vault.economy.Economy
 import net.milkbowl.vault.economy.EconomyResponse
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
+import org.bukkit.entity.Player
 import org.bukkit.Server
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.PluginManager
@@ -58,7 +59,11 @@ class MenuEconomyTest {
         try {
             val plugin = proxy<Plugin> { method, _ -> if (method == "getServer") server else null }
             val player = proxy<OfflinePlayer> { method, _ -> if (method == "getUniqueId") UUID(0, 1) else null }
-            val access = MenuEconomy(plugin)
+            val boundPlayer = proxy<Player> { method, _ -> if (method == "getUniqueId") UUID(0, 1) else null }
+            val bound = PlayerAction(plugin, boundPlayer)
+            assertEquals(100.0, bound.balance())
+            assertTrue(bound.hasMoney(40.0))
+            val access = PlayerAction(plugin)
             assertEquals(100.0, access.balance(player))
             assertTrue(access.withdraw(player, 40.0).success)
             assertEquals(60.0, access.balance(player))

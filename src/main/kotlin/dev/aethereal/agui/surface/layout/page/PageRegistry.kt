@@ -1,4 +1,4 @@
-package dev.aethereal.agui.surface.layout
+package dev.aethereal.agui.surface.layout.page
 
 import dev.aethereal.agui.engine.cache.MenuCache
 

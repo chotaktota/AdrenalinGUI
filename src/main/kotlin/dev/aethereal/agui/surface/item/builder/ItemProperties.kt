@@ -1,4 +1,4 @@
-package dev.aethereal.agui.surface.item
+package dev.aethereal.agui.surface.item.builder
 
 import com.google.gson.JsonParser
 import dev.aethereal.agui.engine.MenuEngine

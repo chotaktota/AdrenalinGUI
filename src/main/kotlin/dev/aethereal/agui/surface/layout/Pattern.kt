@@ -26,6 +26,30 @@ class Pattern internal constructor(layout: String, rows: Int) {
         check(animation == null) { "Для шаблона можно задать только одну анимацию" }
         animation = MenuAnimation(size).apply(configure)
     }
+    internal val linkedInputs = linkedMapOf<Int, Pair<Int, dev.aethereal.agui.surface.item.InputField>>()
+    fun inputAt(slot: Int, target: Int, configure: dev.aethereal.agui.surface.item.InputField.() -> Unit) {
+        MenuEngine.requireSync()
+        require(slot in 0 until size && target in 0 until size && slot != target) {
+            "Источник и целевой слот должны различаться и находиться в пределах меню"
+        }
+        require(slot !in linkedInputs && linkedInputs.values.none { it.first == target }) {
+            "Источник или целевой слот уже используется полем"
+        }
+        require(target !in inputs) { "Целевой слот уже объявлен полем" }
+        val field = dev.aethereal.agui.surface.item.InputField().apply(configure)
+        linkedInputs[slot] = target to field
+        inputs.add(target)
+    }
+
+    internal val inputs = linkedSetOf<Int>()
+    fun inputAt(slots: Iterable<Int>) {
+        MenuEngine.requireSync()
+        val targets = slots.toList()
+        require(targets.isNotEmpty() && targets.all { it in 0 until size }) { "Укажите слоты в пределах меню" }
+        inputs.addAll(targets)
+    }
+    fun inputAt(slot: Int) = inputAt(listOf(slot))
+
     internal val icons = linkedMapOf<Int, Icon>()
     init {
         val lines = layout.trimIndent().lines()

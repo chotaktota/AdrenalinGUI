@@ -1,6 +1,6 @@
 package dev.aethereal.agui.engine.cache
 
-import dev.aethereal.agui.surface.item.GUIClick
+import dev.aethereal.agui.surface.item.click.GUIClick
 import dev.aethereal.agui.text.TextContext
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -8,7 +8,8 @@ import org.bukkit.inventory.ItemStack
 internal class CachedNode(
     private val item: CachedItem,
     val handler: (GUIClick.() -> Unit)?,
-    private val visibility: ((Player) -> Boolean)?
+    private val visibility: ((Player) -> Boolean)?,
+    val cooldownTicks: Int = 0
 ) {
     fun isVisible(player: Player): Boolean = visibility?.invoke(player) ?: true
 

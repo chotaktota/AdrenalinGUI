@@ -312,10 +312,21 @@ surface/
   SingleGUISurface.kt
   MultiGUISurface.kt
   layout/
+    Pattern.kt
+    page/
   item/
+    Icon.kt
+    DynamicIcon.kt
+    InputField.kt
+    builder/
+    click/
+      GUIClick.kt
+      action/
+        ItemAction.kt
+        PlayerAction.kt
+        OtherAction.kt
   animation/
 command/
-integration/
 text/
 listener/
 ```
@@ -387,6 +398,24 @@ Named templates belong to the current pattern. A typed template can take two arg
 
 `back()` inside an icon registers the default back action. Inside `onClick`, call `hasPreviousMenu()` to check for an earlier menu and `back()` to navigate there. The engine also exposes `hasPreviousMenu(player)` and `back(player)`. History records up to 32 pages and menus while navigating; closing the window ends that history.
 
+## Player inventory
+
+Use `items` in an `onClick` handler. Elsewhere on the server thread, use `ItemAction(player)` from `dev.aethereal.agui.surface.item.click.action`.
+
+```kotlin
+onClick {
+    val count = countItem(Material.DIAMOND)
+    if (takeItem(Material.DIAMOND, 3)) {
+        player.sendMessage("Списано 3 алмаза из $count")
+    }
+    if (!giveItem(Material.EMERALD, 20)) {
+        player.sendMessage("В инвентаре не хватает места для изумрудов")
+    }
+}
+```
+
+`countItem`, `hasItem` and `takeItem` accept a `Material` or an `ItemStack`. A stack matches by type and metadata; its amount is the default requested quantity for `hasItem` and `takeItem`. `freeInventorySlots()` and `isInventoryFull()` check empty storage slots. `spaceForItem(stack)` and `canFitItem(stack, amount)` also count room in compatible stacks. `giveItem` and `takeItem` operate on the full requested quantity. If they return `false`, the inventory stays intact. Only main inventory and hotbar slots are used.
+
 ## Item properties
 
 ```kotlin
@@ -442,7 +471,7 @@ iconAt(pos('B')) {
         if (balance >= 100.0) enchant(Enchantment.UNBREAKING, 1)
     }
     onClick {
-        val result = engine.economy.withdraw(player, 100.0)
+        val result = withdraw(100.0)
         if (result.success) refresh(slot)
     }
 }
@@ -479,7 +508,7 @@ rights.addGroup(player.uniqueId, "vip", duration = Duration.ofDays(7))
 rights.removeGroup(player.uniqueId, "old")
 ```
 
-Import `java.time.Duration`. Amounts must be finite and nonnegative. Check `Transaction.success` even after `has`; providers can reject a transaction. Access without the required plugin/provider fails with a diagnostic error.
+Import `java.time.Duration`. Amounts must be finite and nonnegative. Check `Transaction.success` even after `hasItem`; providers can reject a transaction. Access without the required plugin/provider fails with a diagnostic error.
 
 LuckPerms writes return `CompletableFuture<Void>`. Never block the server thread with `join()` or `get()`. Handle failures and schedule Bukkit work, including refresh, on the server thread from continuations. Writes affect the named global nodes and preserve contextual nodes; removing a direct permission does not remove inherited permissions. Group validation and purchase rules belong to your plugin. A withdrawal and an asynchronous group assignment are separate operations.
 
@@ -544,3 +573,41 @@ Multi-page menus also show their initial page. The command opens no inventory, i
 ## Package changes
 
 MenuEngine and MenuRegistry moved to `dev.aethereal.agui.engine`. Update imports for explicitly referenced DSL types using the package layout above.
+
+### Поля для предметов и задержка клика
+
+`inputAt(pos('X'))` разрешает класть предметы в указанные слоты. Поддерживаются shift-клик, клавиши хотбара и перетаскивание по разрешённым слотам. Двойной клик для сбора предметов заблокирован. Поля сохраняются при refresh и не могут пересекаться с иконками или анимацией.
+
+В `onClick` метод `inputItem(slot)` возвращает копию предмета, а `takeInput(slot)` извлекает его для обработки. При закрытии оставшиеся предметы возвращаются игроку. При нехватке места остаток выпадает возле него с установленным владельцем.
+
+`cooldown(10)` внутри иконки задаёт задержку на 10 серверных тиков для игрока и этой иконки в текущей сессии. Для отсчёта не создаются повторяющиеся задачи. Пример приведён в русской версии README.
+
+### Связанное поле
+
+`inputAt(sourceSlot, targetSlot) { placeholder { type(Material.BARRIER) }; loreLine("<yellow>Выбрано") }` связывает барьер с отдельным целевым слотом. ЛКМ переносит стак, ПКМ — один предмет. `transfer(InputTransfer.ALL)` и `transfer(InputTransfer.ONE)` фиксируют режим. Барьер восстанавливается после полного извлечения. Добавленный лор показывается только в меню, исходный предмет возвращается без изменений. Подробный пример приведён в русской версии README.
+
+
+### Действия в onClick
+
+Все действия вызываются напрямую. Реализации находятся в `surface/item/click/action`: `ItemAction` содержит работу с инвентарём, `PlayerAction` — экономику и права, `OtherAction` — ввод чата, переходы и поля меню.
+
+```kotlin
+onClick {
+    val balance = balance()
+    val diamonds = countItem(Material.DIAMOND)
+    if (hasMoney(100.0)) {
+        player.sendMessage("Баланс: $balance, алмазов: $diamonds")
+    }
+    inputChat<Int>("Введите количество") {
+        validate { it > 0 }
+        onSuccess { amount -> sendMessage("Вы ввели $amount") }
+        onFailure { reason -> sendMessage("Ввод завершён: $reason") }
+    }
+}
+```
+
+Экономика доступна через `balance()`, `hasMoney(amount)`, `withdraw(amount)` и `deposit(amount)`. Списание и пополнение возвращают `PlayerAction.Transaction` с результатом операции.
+
+`hasPermission(permission)` использует проверку прав игрока Bukkit. `setPermission`, `unsetPermission`, `addGroup`, `removeGroup`, `prefix()`, `suffix()` и `groups()` работают через LuckPerms. Изменения прав и групп возвращают `CompletableFuture`. Для Bukkit API из асинхронного продолжения нужно переключиться на основной поток.
+
+За пределами обработчика используйте `engine.actions(player)` или `ItemAction(player)` на основном потоке. Удалённые отдельные типы `MenuEconomy`, `MenuPermissions`, `PlayerItems` и `ChatInput` заменены классами действий. Настройки ввода и причины завершения находятся в `OtherAction.Chat` и `OtherAction.InputFailure`.

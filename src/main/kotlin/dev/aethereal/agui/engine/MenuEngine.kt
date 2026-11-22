@@ -1,5 +1,7 @@
 package dev.aethereal.agui.engine
 
+import dev.aethereal.agui.surface.item.click.action.PlayerAction
+
 import dev.aethereal.agui.AdrenalinGUI
 import dev.aethereal.agui.engine.cache.CachedMenu
 import dev.aethereal.agui.engine.session.MenuSession
@@ -13,12 +15,16 @@ import java.util.IdentityHashMap
 
 class MenuEngine internal constructor(val plugin: AdrenalinGUI) : AutoCloseable {
     val menus = MenuRegistry()
-    private val economyAccess by lazy { dev.aethereal.agui.integration.MenuEconomy(plugin) }
-    private val permissionAccess by lazy { dev.aethereal.agui.integration.MenuPermissions(plugin) }
-    val economy: dev.aethereal.agui.integration.MenuEconomy
-        get() { requireSync(); checkAvailable(); check(plugin.server.pluginManager.isPluginEnabled("Vault")) { "Vault недоступен" }; return economyAccess }
-    val permissions: dev.aethereal.agui.integration.MenuPermissions
-        get() { requireSync(); checkAvailable(); check(plugin.server.pluginManager.isPluginEnabled("LuckPerms")) { "LuckPerms недоступен" }; return permissionAccess }
+    private val playerActions by lazy { PlayerAction(plugin) }
+    fun actions(player: Player): PlayerAction {
+        requireSync()
+        checkAvailable()
+        return PlayerAction(plugin, player)
+    }
+    val economy: PlayerAction
+        get() { requireSync(); checkAvailable(); check(plugin.server.pluginManager.isPluginEnabled("Vault")) { "Vault недоступен" }; return playerActions }
+    val permissions: PlayerAction
+        get() { requireSync(); checkAvailable(); check(plugin.server.pluginManager.isPluginEnabled("LuckPerms")) { "LuckPerms недоступен" }; return playerActions }
     internal val text = TextUtility(plugin)
     internal val tasks = dev.aethereal.agui.engine.MenuScheduler(org.bukkit.Bukkit::getCurrentTick) { delay, action ->
         val task = plugin.server.scheduler.runTaskLater(plugin, Runnable { action() }, delay)

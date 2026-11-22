@@ -9,6 +9,9 @@ import java.util.IdentityHashMap
 
 internal class CachedMenu(pattern: Pattern) {
     val size = pattern.size
+    val inputSlots = pattern.inputs.toSet()
+    val linkedInputs = pattern.linkedInputs.map { (source, value) -> CachedInput(source, value.first, value.second) }
+    val inputSources = pattern.linkedInputs.keys.toSet()
     private val caption = pattern.caption
     private val nodes = arrayOfNulls<CachedNode>(size)
     val animation: CachedAnimation?
@@ -16,9 +19,14 @@ internal class CachedMenu(pattern: Pattern) {
     fun animatedContents() = dev.aethereal.agui.engine.session.AnimatedContents(nodes.copyOf())
 
     init {
+        require(inputSources.none { it in inputSlots || it in pattern.icons }) { "Источник поля пересекается с другим полем или иконкой" }
+        require(inputSlots.none { it in pattern.icons }) { "Поле для предметов пересекается с иконкой" }
+        require(pattern.animation?.steps?.values?.flatten()?.none { op -> op.slots.any { it in inputSlots || it in inputSources } } != false) {
+            "Анимация пересекается с полем для предметов"
+        }
         val built = IdentityHashMap<Icon, CachedNode>()
         fun compile(icon: Icon): CachedNode = built.getOrPut(icon) {
-            CachedNode(icon.compile(), icon.handler, icon.visibility)
+            CachedNode(icon.compile(), icon.handler, icon.visibility, icon.cooldownTicks)
         }
         pattern.icons.forEach { (slot, icon) -> nodes[slot] = compile(icon) }
         animation = pattern.animation?.let { CachedAnimation(it, ::compile) }

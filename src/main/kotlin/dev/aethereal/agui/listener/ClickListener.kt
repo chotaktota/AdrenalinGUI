@@ -15,19 +15,54 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.server.PluginDisableEvent
 
 internal class ClickListener(private val engine: MenuEngine) : Listener {
+    private val allowedActions = setOf(
+        org.bukkit.event.inventory.InventoryAction.PICKUP_ALL,
+        org.bukkit.event.inventory.InventoryAction.PICKUP_SOME,
+        org.bukkit.event.inventory.InventoryAction.PICKUP_HALF,
+        org.bukkit.event.inventory.InventoryAction.PICKUP_ONE,
+        org.bukkit.event.inventory.InventoryAction.PLACE_ALL,
+        org.bukkit.event.inventory.InventoryAction.PLACE_SOME,
+        org.bukkit.event.inventory.InventoryAction.PLACE_ONE,
+        org.bukkit.event.inventory.InventoryAction.SWAP_WITH_CURSOR,
+        org.bukkit.event.inventory.InventoryAction.HOTBAR_SWAP,
+        org.bukkit.event.inventory.InventoryAction.DROP_ALL_SLOT,
+        org.bukkit.event.inventory.InventoryAction.DROP_ONE_SLOT,
+        org.bukkit.event.inventory.InventoryAction.DROP_ALL_CURSOR,
+        org.bukkit.event.inventory.InventoryAction.DROP_ONE_CURSOR,
+        org.bukkit.event.inventory.InventoryAction.NOTHING
+    )
+
     @EventHandler(priority = EventPriority.HIGHEST)
     fun onClick(event: InventoryClickEvent) {
         val session = event.view.topInventory.holder as? MenuSession ?: return
-        val wasCancelled = event.isCancelled
-        event.isCancelled = true
-        if (!wasCancelled && event.whoClicked.uniqueId == session.player.uniqueId &&
-            event.rawSlot in 0 until event.view.topInventory.size) {
-            session.dispatch(event.rawSlot, event.click)
+        if (event.whoClicked.uniqueId != session.player.uniqueId || !session.isActive) {
+            event.isCancelled = true
+            return
         }
+        if (event.isCancelled) return
+        if (session.isLinked(event.rawSlot)) {
+            event.isCancelled = true
+            session.linkedClick(event.rawSlot, event.click)
+            return
+        }
+        val top = event.rawSlot in 0 until event.view.topInventory.size
+        if (event.action == org.bukkit.event.inventory.InventoryAction.MOVE_TO_OTHER_INVENTORY &&
+            (!top || session.isInput(event.rawSlot))) {
+            event.isCancelled = true
+            session.shiftInput(event.rawSlot)
+            return
+        }
+        val safe = event.action in allowedActions
+        event.isCancelled = !safe || (top && !session.isInput(event.rawSlot))
+        if (top && !session.isInput(event.rawSlot)) session.dispatch(event.rawSlot, event.click)
     }
     @EventHandler(priority = EventPriority.HIGHEST)
     fun onDrag(event: InventoryDragEvent) {
-        if (event.view.topInventory.holder is MenuSession) event.isCancelled = true
+        val session = event.view.topInventory.holder as? MenuSession ?: return
+        if (!session.isActive || event.whoClicked.uniqueId != session.player.uniqueId ||
+            event.rawSlots.any { it < event.view.topInventory.size && (!session.isInput(it) || session.isLinked(it)) }) {
+            event.isCancelled = true
+        }
     }
     @EventHandler
     fun onClose(event: InventoryCloseEvent) {

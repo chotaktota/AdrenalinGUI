@@ -1,5 +1,6 @@
-package dev.aethereal.agui.surface.item
+package dev.aethereal.agui.surface.item.builder
 
+import dev.aethereal.agui.surface.item.Icon
 import net.kyori.adventure.text.format.TextDecoration
 import dev.aethereal.agui.engine.MenuEngine
 import dev.aethereal.agui.engine.cache.CachedItem

@@ -26,6 +26,7 @@ class MenuBenchmark : JavaPlugin(), Listener {
     private val states = hashMapOf<UUID, String>()
     private var phase = "warmup"
     private var failures = 0
+    private var inputStatus = "Не запускалась"
     private var animationStatus = "Не запускалась"
     private var guisStatus = "Не запускалась"
     private var guisVerification: GuisVerification? = null
@@ -65,6 +66,13 @@ class MenuBenchmark : JavaPlugin(), Listener {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         when (command.name) {
+            "benchverifyinputs" -> if (sender !is Player) {
+                if (args.firstOrNull() != "status") {
+                    inputStatus = "Выполняется"
+                    verifyInputs(this, checkNotNull(server.getPlayerExact("Bench0"))) { inputStatus = it }
+                }
+                sender.sendMessage(inputStatus)
+            }
             "benchverifyguis" -> if (sender !is Player) {
                 guisStatus = "Выполняется"
                 guisVerification?.close()
@@ -93,6 +101,11 @@ class MenuBenchmark : JavaPlugin(), Listener {
             "benchverifyinteraction" -> if (sender !is Player) {
                 val viewer = checkNotNull(server.getPlayerExact("Bench0"))
                 verifyInteraction(this, viewer)
+            }
+            "benchverifyinventory" -> if (sender !is Player) {
+                val viewer = checkNotNull(server.getPlayerExact("Bench0"))
+                verifyPlayerItems(viewer, args.firstOrNull())
+                sender.sendMessage("Инвентарь: проверка пройдена")
             }
             "benchverify" -> if (sender !is Player) {
                 val player = server.getPlayerExact(args.firstOrNull() ?: "Bench0") ?: error("Тестовый игрок не найден")

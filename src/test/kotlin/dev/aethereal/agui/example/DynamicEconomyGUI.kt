@@ -21,7 +21,7 @@ class DynamicEconomyGUI(plugin: JavaPlugin, private val engine: MenuEngine) : Si
                     if (balance >= 100.0) enchant(Enchantment.UNBREAKING, 1)
                 }
                 onClick {
-                    if (engine.economy.withdraw(player, 100.0).success) refresh(slot)
+                    if (withdraw(100.0).success) refresh(slot)
                 }
             }
         }

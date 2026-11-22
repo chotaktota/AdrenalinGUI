@@ -1,5 +1,6 @@
 package dev.aethereal.agui.surface.item
 
+import dev.aethereal.agui.surface.item.builder.ItemProperties
 import dev.aethereal.agui.engine.MenuEngine
 import dev.aethereal.agui.text.MenuText
 import dev.aethereal.agui.text.TextContext
