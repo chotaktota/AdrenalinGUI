@@ -5,6 +5,15 @@ import statistics
 import sys
 from pathlib import Path
 
+PHASES = ("round1", "round2", "round3")
+MENUS = tuple(
+    f"{engine}/{mode}"
+    for engine in ("abstract", "agui", "bmenu")
+    for mode in ("dynamic", "static")
+)
+METRICS = ("click_action", "open")
+SAMPLES_PER_ROUND = 400
+
 source = Path(sys.argv[1])
 data = json.loads(source.read_text(encoding="utf-8"))
 if data["failures"]:
@@ -12,10 +21,32 @@ if data["failures"]:
 groups = collections.defaultdict(list)
 rounds = collections.defaultdict(list)
 for sample in data["samples"]:
-    if sample["phase"] not in ("round1", "round2", "round3"):
+    phase, menu, metric = sample["phase"], sample["menu"], sample["metric"]
+    if phase not in PHASES:
         continue
-    groups[(sample["menu"], sample["metric"])].append(sample["nanos"] / 1_000_000)
-    rounds[(sample["phase"], sample["menu"], sample["metric"])].append(sample["nanos"] / 1_000_000)
+    if menu not in MENUS or metric not in METRICS:
+        raise SystemExit(f"Неизвестная группа замеров: {phase}/{menu}/{metric}")
+    millis = sample["nanos"] / 1_000_000
+    groups[(menu, metric)].append(millis)
+    rounds[(phase, menu, metric)].append(millis)
+
+allow_incomplete_actions = "--allow-incomplete-actions" in sys.argv
+incomplete = {}
+for menu in MENUS:
+    for metric in METRICS:
+        recorded = len(groups.get((menu, metric), ()))
+        allow_missing = allow_incomplete_actions and metric == "click_action" and recorded > 0
+        for phase in PHASES:
+            count = len(rounds.get((phase, menu, metric), ()))
+            if count == SAMPLES_PER_ROUND or (allow_missing and count < SAMPLES_PER_ROUND):
+                continue
+            raise SystemExit(
+                f"Неполный набор замеров: {phase}/{menu}/{metric}: "
+                f"ожидалось {SAMPLES_PER_ROUND}, получено {count}"
+            )
+        expected = SAMPLES_PER_ROUND * len(PHASES)
+        if recorded != expected:
+            incomplete[f"{menu}/{metric}"] = {"expected": expected, "recorded": recorded}
 
 def summarize(values):
     ordered = sorted(values)
@@ -34,14 +65,8 @@ summary = {
     "percentile_method": "nearest rank; median is arithmetic mean of middle pair",
     "aggregate": {menu + "/" + metric: summarize(values) for (menu, metric), values in sorted(groups.items())},
     "rounds": {phase + "/" + menu + "/" + metric: summarize(values) for (phase, menu, metric), values in sorted(rounds.items())},
+    "incomplete_actions": incomplete,
 }
-incomplete = {}
-for name, values in summary["aggregate"].items():
-    if values["count"] != 1200:
-        if "--allow-incomplete-actions" not in sys.argv or not name.endswith("/click_action") or not 0 < values["count"] < 1200:
-            raise SystemExit("Неполный набор замеров: " + name + " " + str(values["count"]))
-        incomplete[name] = {"expected": 1200, "recorded": values["count"]}
-summary["incomplete_actions"] = incomplete
 target = source.with_name("summary.json")
 target.write_text(json.dumps(summary, indent=2), encoding="utf-8")
 for key, value in summary["aggregate"].items():
