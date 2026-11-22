@@ -10,6 +10,37 @@ open class OtherAction internal constructor(
     private val navigate: ((String) -> Unit)?,
     private val session: MenuSession
 ) : PlayerAction(session.engine.plugin, player) {
+    fun sound(
+        sound: org.bukkit.Sound,
+        volume: Float = 1f,
+        pitch: Float = 1f,
+        category: org.bukkit.SoundCategory = org.bukkit.SoundCategory.MASTER
+    ) {
+        MenuEngine.requireSync()
+        require(volume.isFinite() && volume >= 0 && pitch.isFinite() && pitch >= 0) {
+            "Громкость и высота звука должны быть конечными неотрицательными числами"
+        }
+        player.playSound(player.location, sound, category, volume, pitch)
+    }
+
+    fun sound(
+        sound: String,
+        volume: Float = 1f,
+        pitch: Float = 1f,
+        category: org.bukkit.SoundCategory = org.bukkit.SoundCategory.MASTER
+    ) {
+        MenuEngine.requireSync()
+        require(volume.isFinite() && volume >= 0 && pitch.isFinite() && pitch >= 0) {
+            "Громкость и высота звука должны быть конечными неотрицательными числами"
+        }
+        val name = sound.trim()
+        val key = if (':' !in name) soundAliases[name.uppercase(java.util.Locale.ROOT)] else null
+        val resolved = key ?: requireNotNull(org.bukkit.NamespacedKey.fromString(name.lowercase(java.util.Locale.ROOT))) {
+            "Некорректный ключ звука: $sound"
+        }
+        player.playSound(player.location, resolved.toString(), category, volume, pitch)
+    }
+
     fun inputItem(slot: Int): org.bukkit.inventory.ItemStack? = session.inputItem(slot)
     fun takeInput(slot: Int): org.bukkit.inventory.ItemStack? = session.takeInput(slot)
 
@@ -67,13 +98,23 @@ open class OtherAction internal constructor(
 
     fun refresh(vararg slots: Int) {
         MenuEngine.requireSync()
-        val session = player.openInventory.topInventory.holder as? MenuSession ?: return
         session.refresh(if (slots.isEmpty()) IntArray(session.inventory.size) { it } else slots)
     }
-    fun close() { MenuEngine.requireSync(); player.closeInventory() }
+
+    fun close() {
+        MenuEngine.requireSync()
+        session.close()
+    }
+
     fun openPage(page: String) {
         MenuEngine.requireSync()
         checkNotNull(navigate) { "Переход между страницами доступен только в MultiGUISurface" }.invoke(page)
+    }
+
+    companion object {
+        private val soundAliases by lazy(LazyThreadSafetyMode.NONE) {
+            org.bukkit.Sound.values().associate { it.name() to it.key }
+        }
     }
 
     enum class InputFailure {

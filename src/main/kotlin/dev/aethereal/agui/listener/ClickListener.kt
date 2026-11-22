@@ -40,6 +40,7 @@ internal class ClickListener(private val engine: MenuEngine) : Listener {
             return
         }
         if (event.isCancelled) return
+        session.flushInputChanges()
         if (session.isLinked(event.rawSlot)) {
             event.isCancelled = true
             session.linkedClick(event.rawSlot, event.click)
@@ -52,6 +53,30 @@ internal class ClickListener(private val engine: MenuEngine) : Listener {
             session.shiftInput(event.rawSlot)
             return
         }
+        if (top && session.isInput(event.rawSlot)) {
+            val candidate = when (event.action) {
+                org.bukkit.event.inventory.InventoryAction.PLACE_ALL,
+                org.bukkit.event.inventory.InventoryAction.PLACE_SOME,
+                org.bukkit.event.inventory.InventoryAction.PLACE_ONE -> {
+                    val cursor = event.cursor
+                    val current = event.currentItem
+                    val existing = if (current?.isSimilar(cursor) == true) current.amount else 0
+                    val room = (minOf(cursor.maxStackSize, event.view.topInventory.maxStackSize) - existing).coerceAtLeast(0)
+                    val placed = if (event.action == org.bukkit.event.inventory.InventoryAction.PLACE_ONE) minOf(1, room)
+                        else minOf(cursor.amount, room)
+                    cursor.clone().apply { amount = existing + placed }
+                }
+                org.bukkit.event.inventory.InventoryAction.SWAP_WITH_CURSOR -> event.cursor
+                org.bukkit.event.inventory.InventoryAction.HOTBAR_SWAP ->
+                    if (event.hotbarButton in 0..8) session.player.inventory.getItem(event.hotbarButton)
+                    else session.player.inventory.itemInOffHand
+                else -> null
+            }
+            if (candidate != null && !session.acceptInput(event.rawSlot, candidate)) {
+                event.isCancelled = true
+                return
+            }
+        }
         val safe = event.action in allowedActions
         event.isCancelled = !safe || (top && !session.isInput(event.rawSlot))
         if (top && !session.isInput(event.rawSlot)) session.dispatch(event.rawSlot, event.click)
@@ -59,11 +84,29 @@ internal class ClickListener(private val engine: MenuEngine) : Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     fun onDrag(event: InventoryDragEvent) {
         val session = event.view.topInventory.holder as? MenuSession ?: return
+        if (event.isCancelled) return
+        session.flushInputChanges()
         if (!session.isActive || event.whoClicked.uniqueId != session.player.uniqueId ||
+            event.newItems.any { (slot, item) -> slot < event.view.topInventory.size && !session.acceptInput(slot, item) } ||
             event.rawSlots.any { it < event.view.topInventory.size && (!session.isInput(it) || session.isLinked(it)) }) {
             event.isCancelled = true
         }
     }
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    fun observeClick(event: InventoryClickEvent) {
+        val session = event.view.topInventory.holder as? MenuSession ?: return
+        if (event.rawSlot in 0 until event.view.topInventory.size && session.isInput(event.rawSlot)) {
+            session.observeInput(event.rawSlot)
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    fun observeDrag(event: InventoryDragEvent) {
+        val session = event.view.topInventory.holder as? MenuSession ?: return
+        event.rawSlots.filter { it < event.view.topInventory.size && session.isInput(it) }
+            .forEach { session.observeInput(it) }
+    }
+
     @EventHandler
     fun onClose(event: InventoryCloseEvent) {
         (event.inventory.holder as? MenuSession)?.dispose()

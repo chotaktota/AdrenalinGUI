@@ -11,7 +11,10 @@ internal class CachedMenu(pattern: Pattern) {
     val size = pattern.size
     val inputSlots = pattern.inputs.toSet()
     val linkedInputs = pattern.linkedInputs.map { (source, value) -> CachedInput(source, value.first, value.second) }
+    val conditionalSlots = pattern.icons.filterValues { it.conditions.isNotEmpty() }.keys.toIntArray()
     val inputSources = pattern.linkedInputs.keys.toSet()
+    val inputEvents = pattern.inputEvents.mapValues { CachedInputEvents(it.value) } +
+        pattern.linkedInputs.values.associate { it.first to CachedInputEvents(it.second) }
     private val caption = pattern.caption
     private val nodes = arrayOfNulls<CachedNode>(size)
     val animation: CachedAnimation?
@@ -26,7 +29,10 @@ internal class CachedMenu(pattern: Pattern) {
         }
         val built = IdentityHashMap<Icon, CachedNode>()
         fun compile(icon: Icon): CachedNode = built.getOrPut(icon) {
-            CachedNode(icon.compile(), icon.handler, icon.visibility, icon.cooldownTicks)
+            CachedNode(
+                icon.compile(), icon.handler, icon.visibility, icon.cooldownTicks,
+                icon.conditions.toList(), icon.disabledStyle, icon.denied
+            )
         }
         pattern.icons.forEach { (slot, icon) -> nodes[slot] = compile(icon) }
         animation = pattern.animation?.let { CachedAnimation(it, ::compile) }
@@ -37,7 +43,7 @@ internal class CachedMenu(pattern: Pattern) {
     fun populate(inventory: Inventory, context: TextContext) {
         val rendered = IdentityHashMap<CachedNode, ItemStack?>()
         inventory.contents = Array(size) { slot ->
-            nodes[slot]?.render(context, rendered)?.clone()
+            nodes[slot]?.render(context, rendered, includeDisabled = false)?.clone()
         }
     }
 

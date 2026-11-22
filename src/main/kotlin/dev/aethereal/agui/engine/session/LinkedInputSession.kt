@@ -10,7 +10,8 @@ import org.bukkit.inventory.ItemStack
 
 internal class LinkedInputSession(
     val definition: CachedInput,
-    private val inventory: Inventory
+    private val inventory: Inventory,
+    private val accepts: (ItemStack) -> Boolean
 ) {
     private var original: ItemStack? = null
 
@@ -59,6 +60,7 @@ internal class LinkedInputSession(
             InputTransfer.CLICK -> if (click == ClickType.RIGHT) 1 else cursor.amount
         }
         val item = cursor.clone().apply { this.amount = amount }
+        if (!accepts(item)) return
         val display = definition.display(item, context)
         val remainder = if (cursor.amount == amount) null else cursor.clone().apply { this.amount -= amount }
         original = item

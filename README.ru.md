@@ -648,3 +648,80 @@ onClick {
 `hasPermission(permission)` использует проверку прав игрока Bukkit. `setPermission`, `unsetPermission`, `addGroup`, `removeGroup`, `prefix()`, `suffix()` и `groups()` работают через LuckPerms. Изменения прав и групп возвращают `CompletableFuture`. Для Bukkit API из асинхронного продолжения нужно переключиться на основной поток.
 
 За пределами обработчика используйте `engine.actions(player)` или `ItemAction(player)` на основном потоке. Удалённые отдельные типы `MenuEconomy`, `MenuPermissions`, `PlayerItems` и `ChatInput` заменены классами действий. Настройки ввода и причины завершения находятся в `OtherAction.Chat` и `OtherAction.InputFailure`.
+
+
+### Фильтры и события полей
+
+Обычное поле можно настроить через `inputAt(slot) { ... }` или `inputAt(pos('I')) { ... }`. Связанное поле настраивается через `inputAt(source, target) { ... }`.
+
+```kotlin
+val source = pos('X').first()
+val target = pos('I').first()
+val button = pos('B').first()
+
+inputAt(source, target) {
+    placeholder {
+        type(Material.BARRIER)
+        name("<red>Положите меч")
+    }
+    acceptIf { item -> item.type == Material.DIAMOND_SWORD }
+    onInsert { change ->
+        sound(Sound.BLOCK_ANVIL_PLACE, volume = 0.5f)
+        player.sendMessage("Добавлено: ${change.item?.amount}")
+    }
+    onTake { change ->
+        sound(Sound.ENTITY_ITEM_PICKUP)
+        player.sendMessage("Забрано: ${change.item?.amount}")
+    }
+    onChange {
+        refresh(button)
+    }
+}
+```
+
+`acceptIf { player, item -> ... }` позволяет учитывать игрока. Несколько фильтров должны выполняться одновременно. Фильтр получает копию предполагаемого содержимого слота, включая итоговое количество после добавления. Отклонённая операция сохраняет предметы на своих местах и не вызывает события. Проверки работают при обычном переносе, shift-клике, переносе из хотбара и перетаскивании.
+
+Обработчики получают `InputChange`. В нём доступны `slot`, `previous`, `current`, `item` и `cause`. В `onInsert` и `onTake` свойство `item` содержит именно добавленное или забранное количество. В `onChange` доступны снимки полного содержимого до и после. Изменение копий сохраняет исходные предметы в поле.
+
+При замене предмета вызываются `onTake`, `onInsert`, затем `onChange`. Увеличение и уменьшение стака тоже вызывают соответствующие события. Причины изменения — `InputCause.PLAYER` и `InputCause.TAKE_INPUT`.
+
+Обработчики выполняются отложенно на основном потоке после фиксации изменения. Уже зафиксированное событие может быть обработано после закрытия окна, поэтому для проверки изменения используйте `previous` и `current`. Возврат предметов при закрытии событий не создаёт. Вызовы `refresh` и `close` в обработчике относятся к его исходной сессии. Повторяющихся задач для отслеживания полей нет.
+
+### Доступность кнопок
+
+`enabledIf` определяет, разрешено ли выполнить действие видимой кнопки. Условие вычисляется при открытии и refresh для оформления, затем заново перед выполнением клика. Кэш содержит описание кнопки, состояние вычисляется отдельно для каждого игрока.
+
+```kotlin
+iconAt(button) {
+    type(Material.ANVIL)
+    name("<green>Улучшить")
+
+    enabledIf("<red>Положите алмазный меч") { player ->
+        player.openInventory.topInventory.getItem(target)?.type == Material.DIAMOND_SWORD
+    }
+    enabledIf("<red>Недостаточно денег") { player ->
+        engine.economy.has(player, 100.0)
+    }
+
+    disabled { reason ->
+        name("<gray>Улучшение недоступно")
+        lore(reason)
+    }
+
+    onDenied {
+        sound(Sound.ENTITY_VILLAGER_NO)
+    }
+
+    onClick {
+        player.sendMessage("Условия выполнены")
+    }
+}
+```
+
+Проверки выполняются по порядку. Причина первой неудачной проверки передаётся в `disabled` и `onDenied`. Основной `onClick` выполняется только при выполнении всех условий. Если причина задана, без собственного `disabled` она добавляется к лору. Без собственного `onDenied` причина отправляется игроку с форматированием MiniMessage, legacy и плейсхолдеров.
+
+Для проверки без текста используйте `enabledIf { player -> ... }`. После изменения баланса, прав или содержимого поля вызывайте `refresh(button)` для обновления оформления. При клике актуальность проверяется даже без refresh. Автоматической проверки по таймеру нет.
+
+### Звуковые действия
+
+В обработчиках кликов и событий полей доступны `sound(Sound.UI_BUTTON_CLICK)` и `sound("minecraft:ui.button.click", volume = 0.5f, pitch = 1.2f)`. Поддерживаются ключи звуков ресурспака и имена констант Bukkit, например `"UI_BUTTON_CLICK"`. Категория задаётся параметром `category`. Звук проигрывается только участнику действия, на основном потоке.

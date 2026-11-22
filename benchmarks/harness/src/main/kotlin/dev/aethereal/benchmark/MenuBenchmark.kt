@@ -26,6 +26,7 @@ class MenuBenchmark : JavaPlugin(), Listener {
     private val states = hashMapOf<UUID, String>()
     private var phase = "warmup"
     private var failures = 0
+    private var rulesStatus = "Не запускалась"
     private var inputStatus = "Не запускалась"
     private var animationStatus = "Не запускалась"
     private var guisStatus = "Не запускалась"
@@ -66,6 +67,13 @@ class MenuBenchmark : JavaPlugin(), Listener {
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
         when (command.name) {
+            "benchverifyrules" -> if (sender !is Player) {
+                if (args.firstOrNull() != "status") {
+                    rulesStatus = "Выполняется"
+                    verifyInputRules(this, checkNotNull(server.getPlayerExact("Bench0"))) { rulesStatus = it }
+                }
+                sender.sendMessage(rulesStatus)
+            }
             "benchverifyinputs" -> if (sender !is Player) {
                 if (args.firstOrNull() != "status") {
                     inputStatus = "Выполняется"

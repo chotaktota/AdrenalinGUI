@@ -41,7 +41,21 @@ class Pattern internal constructor(layout: String, rows: Int) {
         inputs.add(target)
     }
 
+    internal val inputEvents = linkedMapOf<Int, dev.aethereal.agui.surface.item.InputEvents>()
     internal val inputs = linkedSetOf<Int>()
+    fun inputAt(slots: Iterable<Int>, configure: dev.aethereal.agui.surface.item.InputEvents.() -> Unit) {
+        MenuEngine.requireSync()
+        val targets = slots.toList()
+        require(targets.none { target -> linkedInputs.values.any { it.first == target } }) {
+            "Целевой слот уже используется связанным полем"
+        }
+        inputAt(targets)
+        val events = dev.aethereal.agui.surface.item.InputEvents().apply(configure)
+        targets.forEach { inputEvents[it] = events }
+    }
+    fun inputAt(slot: Int, configure: dev.aethereal.agui.surface.item.InputEvents.() -> Unit) =
+        inputAt(listOf(slot), configure)
+
     fun inputAt(slots: Iterable<Int>) {
         MenuEngine.requireSync()
         val targets = slots.toList()

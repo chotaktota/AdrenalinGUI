@@ -30,6 +30,27 @@ class Icon : ItemBuilder() {
         cooldownTicks = ticks
     }
 
+    internal val conditions = mutableListOf<Pair<String, (Player) -> Boolean>>()
+    internal var disabledStyle: (DynamicIcon.(String) -> Unit)? = null
+    internal var denied: (GUIClick.(String) -> Unit)? = null
+
+    fun enabledIf(condition: (Player) -> Boolean) = enabledIf("", condition)
+
+    fun enabledIf(reason: String, condition: (Player) -> Boolean) {
+        MenuEngine.requireSync()
+        conditions.add(reason to condition)
+    }
+
+    fun disabled(configure: DynamicIcon.(String) -> Unit) {
+        MenuEngine.requireSync()
+        disabledStyle = configure
+    }
+
+    fun onDenied(action: GUIClick.(String) -> Unit) {
+        MenuEngine.requireSync()
+        denied = action
+    }
+
     internal var handler: (GUIClick.() -> Unit)? = null
     fun back() = onClick { back() }
 

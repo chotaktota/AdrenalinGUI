@@ -34,6 +34,7 @@ class MenuEngine internal constructor(val plugin: AdrenalinGUI) : AutoCloseable 
     private val sessions = linkedSetOf<MenuSession>()
     private val renderingHistory = IdentityHashMap<Player, List<MenuDestination>>()
     private var closed = false
+    internal val isRunning: Boolean get() = !closed && plugin.isEnabled
 
     fun open(id: String, player: Player) {
         requireSync()

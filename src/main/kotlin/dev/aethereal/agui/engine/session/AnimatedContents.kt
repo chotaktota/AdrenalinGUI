@@ -35,14 +35,14 @@ internal class AnimatedContents(private val nodes: Array<CachedNode?>) {
         require(slots.all { it in nodes.indices }) { "Слот за пределами меню" }
         val rendered = IdentityHashMap<CachedNode, ItemStack?>()
         for (slot in slots.distinct()) {
-            val item = nodeAt(slot)?.render(context, rendered)?.let { renderedItem ->
+            val item = nodeAt(slot)?.render(context, rendered, includeDisabled = false)?.let { renderedItem ->
                 var copy = renderedItem.clone()
                 changes[slot]?.let { edits ->
                     val icon = DynamicIcon(copy, context)
                     edits.forEach { it.configure.invoke(icon, checkNotNull(context.player)) }
                     copy = icon.apply()
                 }
-                copy
+                nodeAt(slot)?.applyState(copy, context)
             }
             if (inventory.getItem(slot) != item) inventory.setItem(slot, item)
         }

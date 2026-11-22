@@ -23,3 +23,15 @@ internal class CachedInput(val source: Int, val target: Int, field: InputField) 
         }
     }
 }
+
+
+internal class CachedInputEvents(events: dev.aethereal.agui.surface.item.InputEvents) {
+    private val accepts = events.accepts
+    val inserted = events.inserted
+    val taken = events.taken
+    val changed = events.changed
+    val observes: Boolean = inserted != null || taken != null || changed != null
+
+    fun accepts(player: org.bukkit.entity.Player, item: ItemStack): Boolean =
+        accepts?.invoke(player, item) ?: true
+}
