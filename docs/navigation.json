@@ -1,0 +1,132 @@
+{
+  "version": "2.0.1",
+  "repository": "https://github.com/chotaktota/AdrenalinGUI",
+  "pages": [
+    {
+      "id": "introduction",
+      "title": "Введение",
+      "description": "Что делает AdrenalinGUI и как устроено меню",
+      "group": "Начало работы"
+    },
+    {
+      "id": "installation",
+      "title": "Установка",
+      "description": "Java, Gradle, JAR и зависимость плагина",
+      "group": "Начало работы"
+    },
+    {
+      "id": "quick-start",
+      "title": "Первое меню",
+      "description": "Полный класс и открытие по команде",
+      "group": "Начало работы"
+    },
+    {
+      "id": "layout",
+      "title": "Шаблоны и слоты",
+      "description": "Символы, индексы и повторяющиеся позиции",
+      "group": "Построение меню"
+    },
+    {
+      "id": "items",
+      "title": "Предметы",
+      "description": "Материал, лор, атрибуты, модели и данные",
+      "group": "Построение меню"
+    },
+    {
+      "id": "text",
+      "title": "Текст и плейсхолдеры",
+      "description": "MiniMessage, legacy и PlaceholderAPI",
+      "group": "Построение меню"
+    },
+    {
+      "id": "pages",
+      "title": "Страницы и история",
+      "description": "MultiGUISurface, категории и возврат",
+      "group": "Построение меню"
+    },
+    {
+      "id": "templates",
+      "title": "Шаблоны иконок",
+      "description": "Повторное оформление с параметрами",
+      "group": "Построение меню"
+    },
+    {
+      "id": "actions",
+      "title": "Действия клика",
+      "description": "Контекст, инвентарь и выдача предметов",
+      "group": "Поведение"
+    },
+    {
+      "id": "fields",
+      "title": "Поля для предметов",
+      "description": "Фильтры, барьеры, события и возврат",
+      "group": "Поведение"
+    },
+    {
+      "id": "conditions",
+      "title": "Условия кнопок",
+      "description": "enabledIf, видимость и cooldown",
+      "group": "Поведение"
+    },
+    {
+      "id": "dynamic",
+      "title": "Динамические иконки",
+      "description": "Пересчёт данных и работа с кэшем",
+      "group": "Поведение"
+    },
+    {
+      "id": "animation",
+      "title": "Анимации",
+      "description": "Установить, изменить, показать и скрыть",
+      "group": "Поведение"
+    },
+    {
+      "id": "chat",
+      "title": "Ввод через чат",
+      "description": "Типы, проверки и завершение ввода",
+      "group": "Интеграции"
+    },
+    {
+      "id": "economy",
+      "title": "Экономика Vault",
+      "description": "Баланс и результаты транзакций",
+      "group": "Интеграции"
+    },
+    {
+      "id": "permissions",
+      "title": "Права LuckPerms",
+      "description": "Права, группы и асинхронное сохранение",
+      "group": "Интеграции"
+    },
+    {
+      "id": "sound",
+      "title": "Звуки",
+      "description": "Стандартные звуки и ресурспак",
+      "group": "Интеграции"
+    },
+    {
+      "id": "lifecycle",
+      "title": "Реестр и события",
+      "description": "Регистрации, onOpen, onClose и /guis",
+      "group": "Справочник"
+    },
+    {
+      "id": "examples",
+      "title": "Примеры меню",
+      "description": "Помощь, профиль, поля и анимация",
+      "group": "Справочник"
+    },
+    {
+      "id": "migration",
+      "title": "Переход на 2.x",
+      "description": "Имена действий и пакеты API",
+      "group": "Справочник"
+    },
+    {
+      "id": "benchmarks",
+      "title": "Контрольные замеры",
+      "description": "Методика, результаты и исходные данные",
+      "group": "Справочник"
+    }
+  ]
+}

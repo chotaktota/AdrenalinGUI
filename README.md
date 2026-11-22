@@ -1,108 +1,74 @@
 # AdrenalinGUI
 
-Kotlin API for inventory menus in Minecraft plugins
+Kotlin menus for Minecraft plugins. Define the slots, style the items, and put your plugin logic directly into button actions.
 
-[English](README.md) · [Русский](README.ru.md)
+[Русский](README.ru.md) · [Documentation](https://chotaktota.github.io/AdrenalinGUI/) · [Download](https://github.com/chotaktota/AdrenalinGUI/releases/latest)
 
 ![AdrenalinGUI](docs/assets/wordmark.png)
 
-## Write a menu where your plugin logic lives
+## 🧩 What you can build
 
-Define a layout with characters, attach items, and handle clicks in Kotlin. Use a single surface for a simple window or keep a help hub and its categories together in one multi-page class.
+- **A simple server menu** — arrange items with a nine-character pattern and attach Kotlin actions.
+- **Help with categories** — keep the main page, economy, mechanics, and server information in one `MultiGUISurface`.
+- **Player-specific items** — use MiniMessage, legacy colors, PlaceholderAPI, and `dynamic` callbacks.
+- **Item-processing menus** — accept player items into selected slots, filter them, and react to insertions and withdrawals.
+- **Buttons with conditions** — show an unavailable state and its reason, check access again on click, and apply `cooldown`.
+- **Tick-based animation** — set, change, hide, and show items at declared ticks.
+- **Economy and permissions** — call Vault and LuckPerms actions directly, including balance, transactions, permissions, and groups.
+- **Typed chat input** — request a number or text with validation, success, and failure handlers.
 
-- **Readable layouts** — nine characters per row; repeated symbols fill multiple slots.
-- **Optional PlaceholderAPI** — viewer-specific values in titles, item names, and lore, resolved on every open.
-- **MiniMessage throughout** — titles, names, and lore accept tags, hex colors, and gradients.
-- **Named pages** — `page("economy")` and `openPage("economy")`, with independent page caches.
-- **Explicit lifecycle** — `onOpen` and `onClose` for every successfully opened session.
-- **Cached prototypes** — the DSL and item metadata are built once per cache entry; each open gets a separate inventory and item copies.
-- **Direct plugin integration** — call your own services from Kotlin click handlers. No command strings are required for your own plugin logic.
+Templates remove repeated item setup. Item builders cover enchantments, attributes, potions, heads, custom models, equipment components, and persistent data. Sound actions provide feedback for success, rejection, and navigation.
 
-AdrenalinGUI is installed as a separate server plugin. This public build uses Paper/Adventure directly and bundles its Kotlin runtime.
+Each player gets a separate inventory. The shared cache stores menu definitions and item prototypes. Refresh the affected slots explicitly when your data changes.
 
-## Requirements
+## 📦 Install
 
 | Component | Requirement |
 | --- | --- |
 | Java | 21 |
-| Server | Paper 1.21.11 or an API-compatible fork; UniverseSpigot is the development target |
-| Kotlin compiler | Project uses 2.5.0-Beta2; use this version when building the examples or a compatible compiler |
-| Build tool | Gradle Wrapper included, 9.6.0 |
-| Extra server plugins | None required; PlaceholderAPI and its relevant expansions are optional |
-| Folia | Not supported by the current main-thread scheduler |
+| Server | Paper 1.21.11 or an API-compatible fork |
+| Kotlin compiler used by the project | 2.5.0-Beta2 |
+| Optional integrations | PlaceholderAPI and expansions, Vault with an economy provider, LuckPerms |
 
-The build, unit tests and local bot benchmark cover the published scenarios below. These measurements are not a server-capacity test; compatibility beyond the target version is not claimed.
-
-## Build and install
-
-Download the plugin JAR from [GitHub Releases](https://github.com/chotaktota/AdrenalinGUI/releases). Pushing a tag such as `v1.0.0` runs the Gradle build and tests on Java 21, then publishes the versioned JAR.
-
-```bash
-git clone https://github.com/chotaktota/AdrenalinGUI.git
-cd AdrenalinGUI
-./gradlew clean build publishToMavenLocal
-```
-
-Windows:
-
-```powershell
-.\gradlew.bat clean build publishToMavenLocal
-```
-
-Copy `build/libs/AdrenalinGUI-1.0-SNAPSHOT.jar` into the server's `plugins/` directory and restart the server.
-
-In your own plugin's `build.gradle.kts`:
+1. Download the JAR from [Releases](https://github.com/chotaktota/AdrenalinGUI/releases/latest).
+2. Put it in the server's `plugins/` directory and restart.
+3. Put the same JAR in your plugin project's `libs/` directory and add the API dependency.
 
 ```kotlin
-repositories {
-    mavenLocal()
-}
-
 dependencies {
-    compileOnly("dev.aethereal:AdrenalinGUI:1.0-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    compileOnly(files("libs/AdrenalinGUI-2.0.1.jar"))
 }
 ```
 
-These coordinates refer to the artifact you just published locally. A hosted Maven repository or JitPack release is not configured.
-
-Add to your plugin's `plugin.yml`:
+Declare the server dependency in your plugin's `plugin.yml`.
 
 ```yaml
 depend: [AdrenalinGUI]
 ```
 
-For a `paper-plugin.yml` consumer:
+[Full Gradle setup and paper-plugin.yml](https://chotaktota.github.io/AdrenalinGUI/#/installation)
 
-```yaml
-dependencies:
-  server:
-    AdrenalinGUI:
-      load: BEFORE
-      required: true
-      join-classpath: true
-```
-
-## Quick start
+## ⚡ Your first menu
 
 ```kotlin
 import dev.aethereal.agui.surface.SingleGUISurface
 import org.bukkit.Material
 import org.bukkit.plugin.java.JavaPlugin
 
-class QuickStartGUI(plugin: JavaPlugin) : SingleGUISurface(3, plugin) {
+class MainMenu(plugin: JavaPlugin) : SingleGUISurface(3, plugin) {
     override fun onUpdateNodes() {
         with(newPattern("""
             .........
             ....X....
             .........
         """.trimIndent())) {
-            title("<red>Welcome")
+            title("<red>Server menu")
+
             iconAt(pos('X')) {
                 type(Material.ENDER_EYE)
-                name("<white>Explore the server")
-                loreLine("<gray>Your menu. Your Kotlin code.")
-                loreLine("<green>Click to close")
-                glow()
+                name("<white>Close")
+                loreLine("<gray>Click to close this menu")
                 allFlags()
                 onClick { close() }
             }
@@ -111,580 +77,47 @@ class QuickStartGUI(plugin: JavaPlugin) : SingleGUISurface(3, plugin) {
 }
 ```
 
-Create the instance once in your plugin and reuse it:
+Create and register one instance in your plugin's `onEnable`.
 
 ```kotlin
-val menu = QuickStartGUI(this)
-menu.open(player)
-```
-
-A pattern must contain the declared number of rows, each exactly nine characters long. A dot is an empty slot. `pos('X')` returns every matching slot; `iconAt(13)` addresses a slot directly using a zero-based index.
-
-## One menu, several pages
-
-```kotlin
-import dev.aethereal.agui.surface.MultiGUISurface
-import org.bukkit.Material
-import org.bukkit.plugin.java.JavaPlugin
-
-class GuideGUI(plugin: JavaPlugin) : MultiGUISurface(1, plugin) {
-    override fun onUpdateNodes() {
-        page("main") {
-            with(newPattern("....E....")) {
-                title("<gold>Server guide")
-                iconAt(pos('E')) {
-                    type(Material.GOLD_INGOT)
-                    name("<yellow>Economy")
-                    onClick { openPage("economy") }
-                }
-            }
-        }
-        page("economy") {
-            with(newPattern("....B....")) {
-                title("<yellow>Economy")
-                iconAt(pos('B')) {
-                    type(Material.ARROW)
-                    name("<yellow>Back")
-                    onClick { openPage("main") }
-                }
-            }
-        }
-    }
-}
-```
-
-`menu.open(player)` starts at `main`. `menu.open(player, "economy")` opens a section directly. Set another start page using the constructor's third argument; override a page's row count with `page("economy", rows = 6)`.
-
-The full [HelpGUI example](src/test/kotlin/dev/aethereal/agui/example/HelpGUI.kt) contains a hub plus economy, mechanics, and server-information pages.
-
-## PlaceholderAPI
-
-Install PlaceholderAPI and the expansions your placeholders need. Without it, menus still open and placeholder tokens remain unchanged. Missing expansions also leave their unknown tokens unchanged.
-
-```kotlin
-title("<gold>Profile: %player_name%")
-name("<white>%player_name%")
-loreLine("<gray>Balance: <yellow>%vault_eco_balance%")
-```
-
-These calls belong in the title or item blocks shown above. The complete [PlayerProfileGUI](src/test/kotlin/dev/aethereal/agui/example/PlayerProfileGUI.kt) example compiles with the project.
-
-Resolution runs on the main thread for the player opening the menu, before MiniMessage parsing. Placeholder values containing MiniMessage tags are formatted too; legacy color codes are also supported, including values returned by expansions. Placeholder values are read afresh; a bounded shared cache reuses components with identical resolved text. Identical source text is resolved only once within a single opening, and plain static text keeps its cached component.
-
-Values refresh when the menu or page opens again. An already open inventory does not update automatically. See the [PlaceholderAPI usage documentation](https://wiki.placeholderapi.com/developers/using-placeholderapi/) for expansion requirements.
-
-## Register once, open by name
-
-```kotlin
-import dev.aethereal.agui.AdrenalinGUI
-import org.bukkit.plugin.java.JavaPlugin
-
 val engine = JavaPlugin.getPlugin(AdrenalinGUI::class.java).engine
-engine.menus.register("help", HelpGUI(this))
-engine.open("help", player)
+engine.menus.register("main", MainMenu(this))
 ```
 
-Registration is optional. `engine.menus.find("help")` returns a surface or null; `unregister("help")` removes its name and clears its cache. Already open sessions keep their snapshot until closed.
+Open it from your command or listener on the server's main thread.
 
-[HelpExamplePlugin.kt](src/test/kotlin/dev/aethereal/agui/example/HelpExamplePlugin.kt) shows command wiring. Its plugin descriptor needs:
-
-```yaml
-name: HelpExample
-version: '1.0'
-main: dev.aethereal.agui.example.HelpExamplePlugin
-api-version: '1.21.11'
-depend: [AdrenalinGUI]
-commands:
-  helpui:
-    description: Open the server guide
+```kotlin
+engine.open("main", player)
 ```
 
-These example classes compile during tests; they are not bundled into the framework JAR.
+[Complete plugin example](https://chotaktota.github.io/AdrenalinGUI/#/quick-start) · [Menu examples](https://chotaktota.github.io/AdrenalinGUI/#/examples)
 
-## Lifecycle, clicks, and caching
+## 📚 Documentation
 
-For a single surface, override `onOpen(player: Player)` / `onClose(player: Player)`. For a multi-page surface, override `onOpen(player: Player, page: String)` / `onClose(player: Player, page: String)`.
-
-A page transition invokes the old page's close hook and the new page's open hook after successful opening. A cancelled open does not invoke that new page's hooks. If Bukkit closes the previous window before another plugin cancels the new open, the previous window is not restored.
-
-| Operation | Behavior |
+| You need | Start here |
 | --- | --- |
-| First open | Build the layout, text, and item prototypes |
-| Repeated open | Clone cached prototypes; resolve placeholder-bearing text for this viewer |
-| `menu.invalidateCache()` | Rebuild on the next open; existing sessions keep their snapshot |
-| `multi.invalidateCache("economy")` | Rebuild that page on its next open |
-| Owner plugin disabled | Close its sessions, remove registrations, and clear tracked caches |
+| Layouts and repeated icons | [Patterns](https://chotaktota.github.io/AdrenalinGUI/#/layout) and [templates](https://chotaktota.github.io/AdrenalinGUI/#/templates) |
+| Categories in one menu | [Pages and back navigation](https://chotaktota.github.io/AdrenalinGUI/#/pages) |
+| Item input, filters, and events | [Player item fields](https://chotaktota.github.io/AdrenalinGUI/#/fields) |
+| Disabled buttons and click limits | [Conditions and cooldown](https://chotaktota.github.io/AdrenalinGUI/#/conditions) |
+| Fresh values with shared caching | [Dynamic items and refresh](https://chotaktota.github.io/AdrenalinGUI/#/dynamic) |
+| Chat, money, groups, and sound | [Actions](https://chotaktota.github.io/AdrenalinGUI/#/actions) and [integrations](https://chotaktota.github.io/AdrenalinGUI/#/economy) |
+| Upgrade an existing plugin | [API 2.x migration](https://chotaktota.github.io/AdrenalinGUI/#/migration) |
 
-Reuse menu instances. Creating a new menu object for every click creates a new cache too. Cached layouts are shared between viewers: do not capture a specific player's data in a shared cached layout. Placeholder text is resolved separately for each viewer on every open.
+Use `/guis info` to inspect registered menus and their owning plugins. The command requires `adrenalingui.admin`.
 
-Click handlers expose `player`, `slot`, `click`, `isLeftClick`, `isRightClick`, and `isShiftClick`; multi-page clicks also expose `page`. A click action runs on the next main-thread tick, allowing inventory transitions. Additional clicks before it runs are coalesced; closing the inventory first discards the action.
+## 📊 Control benchmark
 
-All item movement and inventory dragging are blocked while a framework menu is open, including the lower inventory. Menu operations must run on the main thread. When opening another menu from an `onClose` hook, schedule that open for the next tick.
+The November 22 control run used AdrenalinGUI 2.0.1, eight bots, and identical 54-slot menus. Median server-side open time was **0.0735 ms** for static items and **0.1118 ms** with placeholders. The click-action measurement includes next-tick dispatch.
 
-There are no periodic refresh tasks or automatic player scans. This describes the implementation, not a performance ranking against other plugins.
+Results vary by scenario. The documentation includes the BMenu and AbstractMenus comparison, p95 values, methodology, and raw samples.
 
-## BMenu & AbstractMenus
+[Results and methodology](https://chotaktota.github.io/AdrenalinGUI/#/benchmarks)
 
-These are the specific API differences in the checked releases, not a claim that other plugins cannot implement similar menus.
+## Build
 
-| AdrenalinGUI provides directly | BMenu 2.7 | AbstractMenus 1.18.0 |
-| --- | --- | --- |
-| Kotlin receiver DSL: `SingleGUISurface`, `newPattern`, `iconAt`, `onClick` | Java extension API and YAML; this Kotlin DSL is not provided | Java extension API and HOCON; this Kotlin DSL is not provided |
-| Named pages and `openPage` in one `MultiGUISurface` class | No equivalent first-party surface/page DSL | No equivalent first-party surface/page DSL |
-| Event-driven menu runtime without a repeating menu-update task | Menu loader runs a tick task | Menu manager runs an update task |
-
-The practical difference is that layouts, page navigation and typed calls to your services stay in one Kotlin class. No custom config action or serializer is needed for an ordinary callback. Both alternatives have extension APIs, navigation, placeholders and caches; these are not exclusive AdrenalinGUI features.
-
-Scope: [BMenu 2.7 source](https://github.com/By1337/BMenu/tree/2.7/src/main/java/dev/by1337/bmenu), [AbstractMenus 1.18.0 source](https://github.com/AbstractMenus/minecraft-plugin/tree/v1.18.0/src/main/java/ru/abstractmenus). Their current development branches may differ. AdrenalinGUI also needs no extra server plugin for its base API; BMenu requires BLib and PlaceholderAPI, while AbstractMenus has optional integrations.
-
-## Measured performance
-
-The tables below describe the version **before the placeholder optimization**. See dynamic icons for current cache behavior.
-
-Measured on November 20, 2026: Paper 1.21.11 build 132, Java 21.0.11, i5-12400F, 16 GB RAM, Windows 11, JVM heap 1–2 GB. Eight bots ran on the same PC. All three plugins were loaded in one server and exercised sequentially in changing order.
-
-Each window had 54 PAPER items, four lore lines and matching legacy colors. The second scenario added viewer-specific placeholders in the title, names and lore. After warmup, three rounds produced **1,200 opens and 1,200 actions per engine per scenario**. Bots verified 466,560 items including warmup.
-
-### Server-side opening
-
-Time from the public open API call until return, including closing/replacing the old window. Client network/render time is excluded. Lower is better.
-
-| Engine | Static p50 / p95, ms | Placeholders p50 / p95, ms |
-| --- | ---: | ---: |
-| AdrenalinGUI | 0.070 / 0.197 | 0.586 / 0.985 |
-| BMenu 2.7 | 0.100 / 0.247 | 0.136 / 0.310 |
-| AbstractMenus 1.18.0 | 0.297 / 0.512 | 0.348 / 0.620 |
-
-![Median opening time, with p95 markers](docs/assets/benchmark-open.png)
-
-### Click-to-action delay
-
-Time from receipt of an inventory click on the server until the same player command executes. This includes the engine's scheduling, not client network latency.
-
-| Engine | Static p50 / p95, ms | Placeholders p50 / p95, ms |
-| --- | ---: | ---: |
-| AdrenalinGUI | 25.287 / 49.034 | 25.190 / 48.874 |
-| BMenu 2.7 | 0.021 / 0.068 | 0.025 / 0.084 |
-| AbstractMenus 1.18.0 | 0.025 / 0.094 | 0.023 / 0.064 |
-
-AdrenalinGUI had the lowest static-menu median in this run, but was slower than both alternatives with placeholders. Its next-tick callback policy also produced about 25 ms median action delay; the other two executed the tested action in the click event. There is no overall “fastest” claim.
-
-This is one workstation run, not a capacity/TPS benchmark. Round-to-round timings varied. JVM HTTP(S) downloads/update checks were blocked; BMenu's optional 1.7 compatibility bridge was unavailable, and its native 2.7 path was verified. Read the [method, limitations and reproduction steps](benchmarks/README.md), [raw samples](benchmarks/results/2026-11-20/samples.json), [per-round summary](benchmarks/results/2026-11-20/summary.json), and [environment](benchmarks/results/2026-11-20/environment.json).
-
-### After optimization: approximate run with Rust open
-
-Rust remained running (around 8 GiB). The same menus and eight bots produced 1,200 opens per case and all 7,200 action samples. All 466,560 item checks passed. This is an estimate under unrelated load, not a clean comparison against the original build.
-
-| Engine | Static: p50 / p95, ms | Placeholders: p50 / p95, ms |
-| --- | ---: | ---: |
-| AdrenalinGUI | 0.158 / 0.414 | 0.217 / 0.559 |
-| BMenu 2.7 | 0.177 / 0.441 | 0.206 / 0.597 |
-| AbstractMenus 1.18.0 | 0.501 / 0.989 | 0.578 / 1.151 |
-
-BMenu retains a slightly lower placeholder median; AdrenalinGUI has the lower p95. A roughly 5% median gap on a busy PC does not establish a stable advantage. AdrenalinGUI click latency remains around 25 ms because callbacks are safely deferred to the next tick.
-
-[Raw samples](benchmarks/results/2026-11-20-loaded-v2/samples.json), [statistics](benchmarks/results/2026-11-20-loaded-v2/summary.json), [conditions and SHA-256](benchmarks/results/2026-11-20-loaded-v2/environment.json). A clean rerun without the game is still needed.
-
-## Examples
-
-![HelpGUI pattern and its inventory slots](docs/assets/help-layout.svg)
-
-| Example | What it shows |
-| --- | --- |
-| [QuickStartGUI](src/test/kotlin/dev/aethereal/agui/example/QuickStartGUI.kt) | A patterned single-page menu |
-| [HelpGUI](src/test/kotlin/dev/aethereal/agui/example/HelpGUI.kt) | Four named pages and back buttons |
-| [HelpExamplePlugin](src/test/kotlin/dev/aethereal/agui/example/HelpExamplePlugin.kt) | Registration and a player command |
-| [PreviewGUI](src/test/kotlin/dev/aethereal/agui/example/PreviewGUI.kt) | The larger six-row layout |
-| [DynamicEconomyGUI](src/test/kotlin/dev/aethereal/agui/example/DynamicEconomyGUI.kt) | Dynamic fields, refresh, economy and permission services |
-
-## Project layout
-
-```text
-AdrenalinGUI.kt
-engine/
-  MenuEngine.kt
-  MenuRegistry.kt
-  MenuScheduler.kt
-  cache/
-  session/
-surface/
-  GUISurface.kt
-  SingleGUISurface.kt
-  MultiGUISurface.kt
-  layout/
-    Pattern.kt
-    page/
-  item/
-    Icon.kt
-    DynamicIcon.kt
-    InputField.kt
-    builder/
-    click/
-      GUIClick.kt
-      action/
-        ItemAction.kt
-        PlayerAction.kt
-        OtherAction.kt
-  animation/
-command/
-text/
-listener/
+```bash
+./gradlew clean build
 ```
 
-## Current scope
-
-Java inventory menus, named category pages, MiniMessage/legacy, optional PlaceholderAPI, dynamic icons with explicit refresh, tick-based animation, Vault economy, LuckPerms, click callbacks and lifecycle hooks are implemented.
-
-
-Automatic list pagination, automatic polling of dynamic values, config loaders, native Bedrock forms, and resource-pack/client detection are not implemented.
-
-Run `./gradlew test` for cache, pattern, page-registry, and lifecycle unit tests. Examples are compiled too; the published bot benchmark additionally checks the listed live-server scenarios.
-
-## Feedback
-
-Open an [issue](https://github.com/chotaktota/AdrenalinGUI/issues) with your Java/server version, a minimal menu class, and a reproducible description.
-
-[Русская документация →](README.ru.md)
-
-## MiniMessage and legacy together
-
-Titles, names, lore and placeholder results accept MiniMessage mixed with legacy colors and decorations. Supported forms: `&a`, `§a`, `&l`, `&r`, `&#A1B2C3`, `&x&A&1&B&2&C&3` and their section-sign equivalents. Legacy color codes reset preceding decorations, matching legacy behavior. MM tag attributes, such as click URLs, are left intact.
-
-```kotlin
-title("&6Server <bold>guide</bold>")
-name("&#55FFAA%player_name%")
-loreLine("§7Balance: &e%vault_eco_balance%")
-```
-
-[Оформление и источники изображений](docs/assets/README.md)
-
-## Icon templates, chat input and back
-
-```kotlin
-with(newPattern("XYIB.....")) {
-    val warp = template("warpTemplate", Material::class.java, String::class.java) { material, label ->
-        type(material)
-        name(label)
-        loreLine("<gray>ЛКМ — выбрать")
-        allFlags()
-    }
-
-    iconAt(pos('X'), warp, Material.ENDER_PEARL, "<green>Спавн")
-    iconAt(pos('Y'), warp, Material.COMPASS, "<gold>Рынок")
-
-    iconAt(pos('I')) {
-        type(Material.PAPER)
-        onClick {
-            inputChat("Введите кол-во монет в чат:", Int::class.java) {
-                validate { it > 0 }
-                onSuccess { amount -> sendMessage("Введено: $amount") }
-                onFailure { reason -> sendMessage("Ошибка ввода: $reason") }
-            }
-        }
-    }
-
-    iconAt(pos('B')) {
-        type(Material.ARROW)
-        name("<yellow>Назад")
-        visibleIf(engine::hasPreviousMenu)
-        back()
-    }
-}
-```
-
-Named templates belong to the current pattern. A typed template can take two arguments directly. Type order is checked by the compiler. Use an argument object to bundle additional fields. An optional icon block runs after the template and can override its defaults.
-
-`inputChat<Int>("Enter the amount:") { ... }` is also supported. Input closes the window and consumes the next chat message privately. Callbacks run on the server thread. Types include `String`, `Int`, `Long`, `Float`, `Double` and `Boolean`. The wait defaults to 1200 ticks. Enter `cancel` or `отмена` to cancel. Failure reasons are `INVALID_INPUT`, `CANCELLED` and `TIMEOUT`. An invalid response calls the failure handler and ends the prompt. Disconnecting, opening another inventory or disabling the owner cancels the prompt.
-
-`back()` inside an icon registers the default back action. Inside `onClick`, call `hasPreviousMenu()` to check for an earlier menu and `back()` to navigate there. The engine also exposes `hasPreviousMenu(player)` and `back(player)`. History records up to 32 pages and menus while navigating; closing the window ends that history.
-
-## Player inventory
-
-Use `items` in an `onClick` handler. Elsewhere on the server thread, use `ItemAction(player)` from `dev.aethereal.agui.surface.item.click.action`.
-
-```kotlin
-onClick {
-    val count = countItem(Material.DIAMOND)
-    if (takeItem(Material.DIAMOND, 3)) {
-        player.sendMessage("Списано 3 алмаза из $count")
-    }
-    if (!giveItem(Material.EMERALD, 20)) {
-        player.sendMessage("В инвентаре не хватает места для изумрудов")
-    }
-}
-```
-
-`countItem`, `hasItem` and `takeItem` accept a `Material` or an `ItemStack`. A stack matches by type and metadata; its amount is the default requested quantity for `hasItem` and `takeItem`. `freeInventorySlots()` and `isInventoryFull()` check empty storage slots. `spaceForItem(stack)` and `canFitItem(stack, amount)` also count room in compatible stacks. `giveItem` and `takeItem` operate on the full requested quantity. If they return `false`, the inventory stays intact. Only main inventory and hotbar slots are used.
-
-## Item properties
-
-```kotlin
-iconAt(0) {
-    type(Material.DIAMOND_SWORD)
-    enchant(Enchantment.SHARPNESS, 5)
-    attribute(Attribute.ATTACK_DAMAGE, NamespacedKey(plugin, "bonus"), 2.0,
-        slot = EquipmentSlotGroup.MAINHAND)
-    modelData(1201)
-    nbt(NamespacedKey(plugin, "item_id"), PersistentDataType.STRING, "reward_sword")
-    unbreakable()
-}
-iconAt(1) {
-    type(Material.POTION)
-    potionColor(Color.fromRGB(0xE64049))
-}
-iconAt(2) {
-    type(Material.PLAYER_HEAD)
-    headTexture(textureHash)
-    equippable(EquipmentSlot.HEAD) {
-        model = NamespacedKey(plugin, "reward_hat")
-    }
-}
-```
-
-`plugin` is your plugin instance, and `textureHash` is a Minecraft skin texture hash. `headTexture` also takes a textures.minecraft.net URL or a Base64 textures property. `modelData { ... }` accepts floats, flags, strings and colors. `itemModel(key)` sets the resource-pack item model separately. `equippable` configures the slot and equipment component, including its equipment model. Use `potionType` and `potionEffect` for potion contents.
-
-`nbt` writes typed, namespaced custom data to the item's PersistentDataContainer. Read it with the same key and type, or pass `null` to remove it. Use `meta { ... }` or `meta(PotionMeta::class.java) { ... }` for other Bukkit item properties. The same properties are available inside `dynamic` and animation `change` blocks.
-
-## Conditional icon visibility
-
-```kotlin
-iconAt(pos('V')) {
-    type(Material.DIAMOND)
-    name("<gold>VIP")
-    requirePermission("myplugin.vip")
-    onClick { close() }
-}
-```
-
-Use `visibleIf { player -> ... }` for custom conditions. When an icon declares several conditions, all must pass. Visibility is evaluated for each viewer when opening or refreshing the menu and when an animation updates the slot. Call `engine.refresh(player)` to update an already open menu after a permission change. Clicks require a displayed item and pass the same check again before the handler runs.
-
-## Dynamic icons and refresh
-
-```kotlin
-iconAt(pos('B')) {
-    type(Material.PAPER)
-    dynamic { player ->
-        val balance = engine.economy.balance(player)
-        name("<gold>${engine.economy.format(balance)}")
-        lore("&7Player: %player_name%", "<gray>Balance: $balance")
-        glow(balance >= 100.0)
-        if (balance >= 100.0) enchant(Enchantment.UNBREAKING, 1)
-    }
-    onClick {
-        val result = withdraw(100.0)
-        if (result.success) refresh(slot)
-    }
-}
-```
-
-Here `engine` is `AdrenalinGUI.engine`; import `org.bukkit.Material` and `org.bukkit.enchantments.Enchantment`.
-The `dynamic` callback runs on the server thread when opening or explicitly refreshing. Each pass starts with a separate copy of the original item. `lore(...)` replaces all lore; `name`, `glow`, `enchant` and `removeEnchant` affect that item only. Changes do not accumulate between passes.
-
-Use `engine.refresh(player)` for all items, or `engine.refresh(player, 11, 13)` for zero-based slots. Click callbacks also expose `refresh()` and `refresh(slot)`. Refresh keeps the title, page and lifecycle hooks unchanged; reopen to change a title. No timers or player scans are scheduled.
-
-Placeholder values are resolved for each open/refresh, with repeated tokens resolved once per pass. Parsed text and item metadata keep at most 16 result variants per element. Cache keys use the current result, so changed values need no cache invalidation. Dynamic callback results are never shared through the item cache. Fetch expensive database data in your own asynchronous service, then refresh on the server thread.
-
-## Vault and LuckPerms
-
-Install Vault plus an economy provider and/or LuckPerms as optional plugins. Their APIs are not bundled. Their placeholders still require PlaceholderAPI and the appropriate expansions.
-
-```kotlin
-val money = engine.economy
-val balance = money.balance(player)
-val affordable = money.has(player, 100.0)
-val payment = money.withdraw(player, 100.0)
-val refund = money.deposit(player, 100.0)
-val formatted = money.format(balance)
-
-val rights = engine.permissions
-val allowed = rights.hasPermission(player, "shop.vip") == true
-val group = rights.primaryGroup(player.uniqueId)
-val groups = rights.groups(player)
-val prefix = rights.prefix(player)
-val suffix = rights.suffix(player)
-rights.setPermission(player.uniqueId, "shop.vip", duration = Duration.ofDays(7))
-rights.unsetPermission(player.uniqueId, "shop.old")
-rights.addGroup(player.uniqueId, "vip", duration = Duration.ofDays(7))
-rights.removeGroup(player.uniqueId, "old")
-```
-
-Import `java.time.Duration`. Amounts must be finite and nonnegative. Check `Transaction.success` even after `hasItem`; providers can reject a transaction. Access without the required plugin/provider fails with a diagnostic error.
-
-LuckPerms writes return `CompletableFuture<Void>`. Never block the server thread with `join()` or `get()`. Handle failures and schedule Bukkit work, including refresh, on the server thread from continuations. Writes affect the named global nodes and preserve contextual nodes; removing a direct permission does not remove inherited permissions. Group validation and purchase rules belong to your plugin. A withdrawal and an asynchronous group assignment are separate operations.
-
-Upstream APIs: [Vault Economy](https://github.com/MilkBowl/VaultAPI/blob/master/src/main/java/net/milkbowl/vault/economy/Economy.java), [LuckPerms UserManager](https://github.com/LuckPerms/LuckPerms/blob/master/api/src/main/java/net/luckperms/api/model/user/UserManager.java). Add compileOnly `net.luckperms:api:5.4` to your plugin when using `permissions.api`, `user` or `loadUser` directly.
-
-## Tick-based animation
-
-Declare one timeline inside `with(newPattern(...))`:
-
-```kotlin
-animation {
-    at(0) { hide(pos('X')) }
-    at(10) { show(pos('X')) }
-    at(20) {
-        change(pos('X')) { player ->
-            name("<gold>${player.name}")
-            lore("&7Баланс: %vault_eco_balance%")
-            glow()
-        }
-    }
-    at(30) {
-        set(pos('X')) {
-            type(Material.EMERALD)
-            name("<green>Готово")
-            onClick { close() }
-        }
-    }
-    loop(60)
-}
-```
-
-`at(10)` is an absolute server-tick offset from opening, not a delay from the previous step. At 20 TPS this is about half a second; lower TPS increases wall-clock time. Tick 0 runs immediately after `onOpen`; later frames run on the server thread. Steps sharing a tick merge in declaration order.
-
-- `set(slot)` / `set(pos('X'))` replaces the icon using the normal DSL, including `dynamic` and `onClick`. It becomes visible and previous animation edits are cleared.
-- `hide(...)` hides the item and disables its click handler while retaining its icon.
-- `show(...)` restores the latest icon, its edits and current placeholder values.
-- `change(...) { player -> ... }` edits name, lore, glow and enchantments. Use `set` to replace the material. Changing an empty slot does nothing.
-
-Without `loop`, the timeline runs once and leaves its final state. `loop(60)` repeats every 60 ticks and must exceed the last step tick. Step 10 of the next cycle runs at tick 70. Cycles retain state; use `set` at tick 0 if you need to reset an item.
-
-Refresh preserves animation replacements, hidden slots and edits. Saved `change` callbacks are reapplied on refresh, so keep purchases and other side effects out of them. Text accepts MiniMessage, legacy and PlaceholderAPI. Each open window has independent state and progress; shared cached prototypes remain unchanged.
-
-The engine maintains at most one pending scheduler callback for its queue of frames and clicks. An empty queue schedules no background work. Only affected slots are rendered; unchanged items are not set again. There are no online-player scans. Closing, page changes, logout and plugin shutdown cancel pending work. A frame exception closes the window with a diagnostic. A queued click is discarded if its slot changes before dispatch.
-
-Compilable example: [AnimatedGUI](src/test/kotlin/dev/aethereal/agui/example/AnimatedGUI.kt). Earlier performance measurements describe builds before animations were added, not frame playback cost.
-
-## /guis info command
-
-Requires `adrenalingui.admin` (operators by default).
-
-| Command | Action |
-| --- | --- |
-| `/guis` | Show usage |
-| `/guis info` | List ten registered menus with owner plugin and menu type |
-| `/guis info --page <number>` | Show another list page |
-| `/guis info <menu>` | Show owner/version, plugin state, type, class and menu size |
-
-Multi-page menus also show their initial page. The command opens no inventory, invalidates no cache and builds no menu templates. Only `engine.menus.register(id, menu)` registrations appear. IDs support tab completion; use IDs without spaces. Console execution is supported.
-
-`engine.menus.entries()` returns an independent registry snapshot. Changing it cannot alter registrations. Call it on the server thread.
-
-## Package changes
-
-MenuEngine and MenuRegistry moved to `dev.aethereal.agui.engine`. Update imports for explicitly referenced DSL types using the package layout above.
-
-### Поля для предметов и задержка клика
-
-`inputAt(pos('X'))` разрешает класть предметы в указанные слоты. Поддерживаются shift-клик, клавиши хотбара и перетаскивание по разрешённым слотам. Двойной клик для сбора предметов заблокирован. Поля сохраняются при refresh и не могут пересекаться с иконками или анимацией.
-
-В `onClick` метод `inputItem(slot)` возвращает копию предмета, а `takeInput(slot)` извлекает его для обработки. При закрытии оставшиеся предметы возвращаются игроку. При нехватке места остаток выпадает возле него с установленным владельцем.
-
-`cooldown(10)` внутри иконки задаёт задержку на 10 серверных тиков для игрока и этой иконки в текущей сессии. Для отсчёта не создаются повторяющиеся задачи. Пример приведён в русской версии README.
-
-### Связанное поле
-
-`inputAt(sourceSlot, targetSlot) { placeholder { type(Material.BARRIER) }; loreLine("<yellow>Выбрано") }` связывает барьер с отдельным целевым слотом. ЛКМ переносит стак, ПКМ — один предмет. `transfer(InputTransfer.ALL)` и `transfer(InputTransfer.ONE)` фиксируют режим. Барьер восстанавливается после полного извлечения. Добавленный лор показывается только в меню, исходный предмет возвращается без изменений. Подробный пример приведён в русской версии README.
-
-
-### Действия в onClick
-
-Все действия вызываются напрямую. Реализации находятся в `surface/item/click/action`: `ItemAction` содержит работу с инвентарём, `PlayerAction` — экономику и права, `OtherAction` — ввод чата, переходы и поля меню.
-
-```kotlin
-onClick {
-    val balance = balance()
-    val diamonds = countItem(Material.DIAMOND)
-    if (hasMoney(100.0)) {
-        player.sendMessage("Баланс: $balance, алмазов: $diamonds")
-    }
-    inputChat<Int>("Введите количество") {
-        validate { it > 0 }
-        onSuccess { amount -> sendMessage("Вы ввели $amount") }
-        onFailure { reason -> sendMessage("Ввод завершён: $reason") }
-    }
-}
-```
-
-Экономика доступна через `balance()`, `hasMoney(amount)`, `withdraw(amount)` и `deposit(amount)`. Списание и пополнение возвращают `PlayerAction.Transaction` с результатом операции.
-
-`hasPermission(permission)` использует проверку прав игрока Bukkit. `setPermission`, `unsetPermission`, `addGroup`, `removeGroup`, `prefix()`, `suffix()` и `groups()` работают через LuckPerms. Изменения прав и групп возвращают `CompletableFuture`. Для Bukkit API из асинхронного продолжения нужно переключиться на основной поток.
-
-За пределами обработчика используйте `engine.actions(player)` или `ItemAction(player)` на основном потоке. Удалённые отдельные типы `MenuEconomy`, `MenuPermissions`, `PlayerItems` и `ChatInput` заменены классами действий. Настройки ввода и причины завершения находятся в `OtherAction.Chat` и `OtherAction.InputFailure`.
-
-
-### Фильтры и события полей
-
-Обычное поле можно настроить через `inputAt(slot) { ... }` или `inputAt(pos('I')) { ... }`. Связанное поле настраивается через `inputAt(source, target) { ... }`.
-
-```kotlin
-val source = pos('X').first()
-val target = pos('I').first()
-val button = pos('B').first()
-
-inputAt(source, target) {
-    placeholder {
-        type(Material.BARRIER)
-        name("<red>Положите меч")
-    }
-    acceptIf { item -> item.type == Material.DIAMOND_SWORD }
-    onInsert { change ->
-        sound(Sound.BLOCK_ANVIL_PLACE, volume = 0.5f)
-        player.sendMessage("Добавлено: ${change.item?.amount}")
-    }
-    onTake { change ->
-        sound(Sound.ENTITY_ITEM_PICKUP)
-        player.sendMessage("Забрано: ${change.item?.amount}")
-    }
-    onChange {
-        refresh(button)
-    }
-}
-```
-
-`acceptIf { player, item -> ... }` позволяет учитывать игрока. Несколько фильтров должны выполняться одновременно. Фильтр получает копию предполагаемого содержимого слота, включая итоговое количество после добавления. Отклонённая операция сохраняет предметы на своих местах и не вызывает события. Проверки работают при обычном переносе, shift-клике, переносе из хотбара и перетаскивании.
-
-Обработчики получают `InputChange`. В нём доступны `slot`, `previous`, `current`, `item` и `cause`. В `onInsert` и `onTake` свойство `item` содержит именно добавленное или забранное количество. В `onChange` доступны снимки полного содержимого до и после. Изменение копий сохраняет исходные предметы в поле.
-
-При замене предмета вызываются `onTake`, `onInsert`, затем `onChange`. Увеличение и уменьшение стака тоже вызывают соответствующие события. Причины изменения — `InputCause.PLAYER` и `InputCause.TAKE_INPUT`.
-
-Обработчики выполняются отложенно на основном потоке после фиксации изменения. Уже зафиксированное событие может быть обработано после закрытия окна, поэтому для проверки изменения используйте `previous` и `current`. Возврат предметов при закрытии событий не создаёт. Вызовы `refresh` и `close` в обработчике относятся к его исходной сессии. Повторяющихся задач для отслеживания полей нет.
-
-### Доступность кнопок
-
-`enabledIf` определяет, разрешено ли выполнить действие видимой кнопки. Условие вычисляется при открытии и refresh для оформления, затем заново перед выполнением клика. Кэш содержит описание кнопки, состояние вычисляется отдельно для каждого игрока.
-
-```kotlin
-iconAt(button) {
-    type(Material.ANVIL)
-    name("<green>Улучшить")
-
-    enabledIf("<red>Положите алмазный меч") { player ->
-        player.openInventory.topInventory.getItem(target)?.type == Material.DIAMOND_SWORD
-    }
-    enabledIf("<red>Недостаточно денег") { player ->
-        engine.economy.has(player, 100.0)
-    }
-
-    disabled { reason ->
-        name("<gray>Улучшение недоступно")
-        lore(reason)
-    }
-
-    onDenied {
-        sound(Sound.ENTITY_VILLAGER_NO)
-    }
-
-    onClick {
-        player.sendMessage("Условия выполнены")
-    }
-}
-```
-
-Проверки выполняются по порядку. Причина первой неудачной проверки передаётся в `disabled` и `onDenied`. Основной `onClick` выполняется только при выполнении всех условий. Если причина задана, без собственного `disabled` она добавляется к лору. Без собственного `onDenied` причина отправляется игроку с форматированием MiniMessage, legacy и плейсхолдеров.
-
-Для проверки без текста используйте `enabledIf { player -> ... }`. После изменения баланса, прав или содержимого поля вызывайте `refresh(button)` для обновления оформления. При клике актуальность проверяется даже без refresh. Автоматической проверки по таймеру нет.
-
-### Звуковые действия
-
-В обработчиках кликов и событий полей доступны `sound(Sound.UI_BUTTON_CLICK)` и `sound("minecraft:ui.button.click", volume = 0.5f, pitch = 1.2f)`. Поддерживаются ключи звуков ресурспака и имена констант Bukkit, например `"UI_BUTTON_CLICK"`. Категория задаётся параметром `category`. Звук проигрывается только участнику действия, на основном потоке.
+On Windows, use `.\gradlew.bat clean build`. The Gradle Wrapper is included. Runnable menu examples are in [src/test](src/test/kotlin/dev/aethereal/agui/example).

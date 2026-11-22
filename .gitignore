@@ -8,3 +8,4 @@ node_modules/
 benchmarks/bots/dumps/
 __pycache__/
 *.py[cod]
+/docs/content.json

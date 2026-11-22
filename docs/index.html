@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#141416">
+  <meta name="description" content="Документация AdrenalinGUI. Kotlin API меню для Minecraft — шаблоны, страницы, поля для предметов, действия и примеры.">
+  <meta property="og:title" content="AdrenalinGUI — документация">
+  <meta property="og:description" content="От первого меню до полей для предметов, условий и анимаций. Подробные примеры Kotlin API.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://chotaktota.github.io/AdrenalinGUI/assets/wordmark.png">
+  <title>AdrenalinGUI — документация</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/site.css">
+  <script>
+    try {
+      const savedTheme = localStorage.getItem("agui-docs-theme");
+      if (savedTheme === "light" || savedTheme === "dark") document.documentElement.dataset.theme = savedTheme;
+    } catch {}
+  </script>
+  <script src="assets/site.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#article">Перейти к статье</a>
+  <header class="header">
+    <a href="#/introduction" class="brand" aria-label="AdrenalinGUI — начало">
+      <span class="brand-mark" aria-hidden="true">A<span>G</span></span>
+      <span>AdrenalinGUI</span>
+    </a>
+    <div class="header-main">
+      <button class="search-trigger" type="button" id="search-open">
+        <span>Поиск по документации</span><kbd>Ctrl K</kbd>
+      </button>
+      <div class="header-actions">
+        <a href="https://github.com/chotaktota/AdrenalinGUI" target="_blank" rel="noopener noreferrer" class="header-github">GitHub</a>
+        <button type="button" class="quiet-button" id="theme-toggle">Светлая тема</button>
+        <button type="button" class="quiet-button mobile-menu" id="nav-toggle" aria-expanded="false" aria-controls="sidebar">Разделы</button>
+      </div>
+    </div>
+  </header>
+  <div class="shell">
+    <aside class="sidebar" id="sidebar" aria-label="Разделы документации">
+      <div class="sidebar-heading"><span>Документация</span><span class="version">2.0.1</span></div>
+      <nav id="navigation" aria-label="Основная навигация"></nav>
+      <div class="sidebar-footer">
+        <span>Java 21 · Paper 1.21.11</span>
+        <a href="https://github.com/chotaktota/AdrenalinGUI/releases/tag/v2.0.1">Скачать плагин</a>
+      </div>
+    </aside>
+    <button class="nav-backdrop" id="nav-backdrop" type="button" aria-label="Закрыть разделы"></button>
+    <main class="main" id="main">
+      <article id="article" tabindex="-1" aria-busy="true">
+        <div class="article-heading">
+          <p class="breadcrumb">AdrenalinGUI / Документация</p>
+          <h1>Меню для Minecraft-плагинов на Kotlin</h1>
+          <p class="lead">Шаблоны, страницы, действия и поля для предметов. Примеры от первого окна до меню с условиями.</p>
+        </div>
+        <p class="loading" role="status">Загрузка документации…</p>
+        <noscript>Для поиска и навигации сайта включите JavaScript. Markdown-версии доступны в папке docs/pages на GitHub.</noscript>
+      </article>
+      <nav class="page-navigation" id="page-navigation" aria-label="Предыдущая и следующая статья"></nav>
+      <footer class="footer">
+        <span>AdrenalinGUI · API 2.0.1</span>
+        <a id="source-link" href="https://github.com/chotaktota/AdrenalinGUI/tree/main/docs/pages" target="_blank" rel="noopener noreferrer">Открыть статью на GitHub</a>
+      </footer>
+    </main>
+    <aside class="toc" aria-label="Содержание статьи">
+      <span class="toc-heading">На этой странице</span>
+      <nav id="table-of-contents"></nav>
+    </aside>
+  </div>
+  <dialog id="search-dialog" aria-labelledby="search-title">
+    <div class="search-heading">
+      <label for="search-input" id="search-title">Поиск по документации</label>
+      <button type="button" class="quiet-button" id="search-close" aria-label="Закрыть поиск">Esc</button>
+    </div>
+    <input id="search-input" type="search" autocomplete="off" placeholder="Например, inputChat или поля" spellcheck="false">
+    <p class="search-status" id="search-status" aria-live="polite">Введите название возможности или метода</p>
+    <div id="search-results" class="search-results"></div>
+    <div class="search-help">Клавиши вверх и вниз выбирают результат · Enter открывает статью</div>
+  </dialog>
+</body>
+</html>

@@ -1,0 +1,80 @@
+{
+  "measurement_date": "2026-11-22",
+  "started": "2026-11-22T14:08:05Z",
+  "finished": "2026-11-22T14:13:04Z",
+  "os": "Windows-11-10.0.26200-SP0",
+  "cpu": "Intel Core i5-12400F",
+  "ram_gib": 16,
+  "jvm": "Oracle Java 21.0.11+9-LTS",
+  "jvm_args": [
+    "-Dterminal.jline=false",
+    "-Dterminal.ansi=false",
+    "-Dhttps.proxyHost=127.0.0.1",
+    "-Dhttps.proxyPort=9",
+    "-Dhttp.proxyHost=127.0.0.1",
+    "-Dhttp.proxyPort=9",
+    "-Dhttp.nonProxyHosts=localhost|127.*",
+    "-Xms1G",
+    "-Xmx2G",
+    "-jar",
+    "paper.jar",
+    "--nogui"
+  ],
+  "minecraft": "1.21.11",
+  "paper_build": 132,
+  "adrenalingui_version": "2.0.1",
+  "adrenalingui_commit": "7cf0adc29af7df50c9565f70f8d0fda823e8e06a",
+  "released_artifact_verified": true,
+  "bmenu_version": "2.7",
+  "abstractmenus_version": "1.18.0",
+  "bots": 8,
+  "rounds": 3,
+  "opens_per_bot_per_case_per_round": 50,
+  "warmup_per_bot_per_case": 30,
+  "mineflayer": "4.39.0",
+  "minecraft_protocol": "1.68.0",
+  "artifacts": {
+    "AdrenalinGUI.jar": {
+      "bytes": 2158006,
+      "sha256": "5a5a447d47b166f4ed0a36d7292a4ac53924c421be94ff2fa37dbf31dfe3fdaf"
+    },
+    "MenuBenchmark.jar": {
+      "bytes": 91414,
+      "sha256": "822f0aac27fdc864e23f9e6eb80eb917863492db0f0fff1b66a4eacfc4cc7bb9"
+    },
+    "BMenu-2.7.jar": {
+      "bytes": 350365,
+      "sha256": "729512c8baae305c8e2d4d8336488e72214ba4168542c17727b35f6284863cc4"
+    },
+    "AbstractMenus-1.18.0.jar": {
+      "bytes": 2300661,
+      "sha256": "461018514150a5990fc54bcf0a2bac833028601e7d9d40e8503b06bd7cb7b73d"
+    },
+    "BLib.jar": {
+      "bytes": 2837533,
+      "sha256": "9b551b0018a7f9085c8914d7014d2984518184e0e03f5412e71801dc961cec0d"
+    },
+    "PlaceholderAPI.jar": {
+      "bytes": 1160690,
+      "sha256": "fde03259f5af6938f3c33eeb4d814000a1adabf1d2304ce14970be81f609a437"
+    },
+    "WorldEdit.jar": {
+      "bytes": 7510632,
+      "sha256": "0ee152b1be5dfb51500505e2bf5a8c9d66f09c7fa484bf9aea384d7e7b459b06"
+    },
+    "paper.jar": {
+      "bytes": 54846016,
+      "sha256": "5ffef465eeeb5f2a3c23a24419d97c51afd7dbb4923ff42df9a3f58bba1ccfba"
+    }
+  },
+  "notes": [
+    "All three engines loaded in one JVM; scenarios run sequentially with rotated order.",
+    "Equal 54-slot menus; name plus four lore lines. Dynamic scenario uses player-name and constant placeholders.",
+    "Client checks materials, amounts, names, colors and lore for every slot.",
+    "Rust was not running. A normal Windows desktop session remained active; this is not an isolated lab host.",
+    "Server and bots shared CPU and RAM. No Gradle builds or browser QA ran during measurement.",
+    "HTTP(S) startup checks use a closed loopback proxy. Optional BMenu 1.7 bridge remained unavailable.",
+    "Open duration covers the server API call, not network transfer or client rendering.",
+    "Click-action latency includes AdrenalinGUI next-tick dispatch. No TPS-capacity or universal fastest claim."
+  ]
+}
